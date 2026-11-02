@@ -2,6 +2,8 @@ import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { describe, it, expect } from 'vitest';
 import AppFooter from '~/components/AppFooter.vue';
 
+const year = new Date().getFullYear();
+
 describe('AppFooter', () => {
   it('links to the three legal pages', async () => {
     const wrapper = await mountSuspended(AppFooter);
@@ -10,7 +12,18 @@ describe('AppFooter', () => {
     expect(wrapper.find('a[href="/terms"]').exists()).toBe(true);
   });
 
-  it('has exactly one GitHub link: a source icon for this repo', async () => {
+  it('names PokeAPI once, as a new-tab link to pokeapi.co', async () => {
+    const wrapper = await mountSuspended(AppFooter);
+    expect(wrapper.text().match(/PokeAPI/g)).toHaveLength(1);
+    const link = wrapper.find('a[href="https://pokeapi.co"]');
+    expect(link.text()).toContain('Data and artwork from PokeAPI');
+    expect(link.text()).toContain('(opens in a new tab)');
+    expect(link.attributes('target')).toBe('_blank');
+    expect(link.attributes('rel')).toContain('noopener');
+    expect(link.attributes('rel')).toContain('noreferrer');
+  });
+
+  it('links to the source with visible text and a new-tab hint', async () => {
     const wrapper = await mountSuspended(AppFooter);
     const githubLinks = wrapper
       .findAll('a')
@@ -18,22 +31,34 @@ describe('AppFooter', () => {
     expect(githubLinks).toHaveLength(1);
     const [link] = githubLinks;
     expect(link?.attributes('href')).toBe('https://github.com/sg208/pokedex');
-    expect(link?.attributes('aria-label')).toBe(
-      'Source code on GitHub (opens in a new tab)'
-    );
+    expect(link?.text()).toContain('Source on GitHub');
+    expect(link?.find('.sr-only').text()).toBe('(opens in a new tab)');
     expect(link?.attributes('target')).toBe('_blank');
     expect(link?.attributes('rel')).toContain('noopener');
     expect(link?.attributes('rel')).toContain('noreferrer');
-    expect(link?.text()).toBe('');
-    const icon = link?.find('svg');
-    expect(icon?.attributes('aria-hidden')).toBe('true');
-    expect(icon?.attributes('focusable')).toBe('false');
+    expect(link?.find('svg').exists()).toBe(false);
   });
 
-  it('credits the author and shows the year', async () => {
+  it('keeps year, author and licence in one element', async () => {
     const wrapper = await mountSuspended(AppFooter);
-    expect(wrapper.text()).toContain(`© ${new Date().getFullYear()}`);
-    expect(wrapper.text()).toContain('MIT licence. Made by Syailendra Ginting');
+    const credit = wrapper
+      .findAll('p')
+      .find((node) => node.text().includes(`© ${year} Syailendra Ginting`));
+    expect(credit?.text()).toContain('MIT licence');
+  });
+
+  it('has one sr-only heading, one footer nav and a back-to-top link', async () => {
+    const wrapper = await mountSuspended(AppFooter);
+    expect(wrapper.findAll('h2.sr-only')).toHaveLength(1);
+    expect(wrapper.findAll('nav[aria-label="Footer"]')).toHaveLength(1);
+    expect(wrapper.find('a[href="#top"]').text()).toBe('Back to top');
+  });
+
+  it('keeps the chapter contract on the root', async () => {
+    const root = (await mountSuspended(AppFooter)).find('footer');
+    expect(root.attributes('data-chapter')).toBeDefined();
+    expect(root.attributes('data-bg')).toBe('#ed4b44');
+    expect(root.attributes('data-ink')).toBe('#1a1a1a');
   });
 
   it('carries the trademark disclaimer', async () => {
@@ -41,7 +66,6 @@ describe('AppFooter', () => {
     expect(text).toContain('Nintendo');
     expect(text).toContain('Creatures Inc.');
     expect(text).toContain('GAME FREAK');
-    expect(text).toContain('PokeAPI');
     expect(text).toContain('Not affiliated');
   });
 });
