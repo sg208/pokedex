@@ -133,24 +133,6 @@ body {
   padding: 2rem var(--margin) 1.5rem;
 }
 
-.footer-fit {
-  container-type: inline-size;
-}
-
-.footer-display {
-  display: block;
-  width: fit-content;
-  font-size: 6.6cqi;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-.footer-display:hover {
-  text-decoration: underline;
-  text-decoration-thickness: 0.06em;
-  text-underline-offset: 0.08em;
-}
-
 /* Press feedback on every real button and the hero action */
 button,
 .press {

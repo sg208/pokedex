@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const { repoUrl } = useAppConfig();
 const { bg, ink } = useChapterInk();
 
 const linkClass =
@@ -17,17 +16,6 @@ const linkClass =
       <ul class="flex gap-6">
         <li>
           <NuxtLink to="/#index" :class="linkClass">Index</NuxtLink>
-        </li>
-        <li>
-          <a
-            :href="repoUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            :class="linkClass"
-          >
-            Source
-            <span class="sr-only">(opens GitHub in a new tab)</span>
-          </a>
         </li>
       </ul>
     </nav>

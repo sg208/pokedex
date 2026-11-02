@@ -30,6 +30,11 @@ describe('AppHeader', () => {
     expect(wrapper.find('a[href="/#index"]').exists()).toBe(true);
   });
 
+  it('leaves the GitHub link to the footer', async () => {
+    const wrapper = await mountSuspended(AppHeader);
+    expect(wrapper.find('a[href*="github.com"]').exists()).toBe(false);
+  });
+
   it('takes the ink and ground of the chapter under it', async () => {
     vi.stubGlobal('IntersectionObserver', FakeObserver);
     const chapter = document.createElement('section');
