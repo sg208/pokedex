@@ -44,7 +44,7 @@ pnpm run deploy    # pnpm generate && wrangler deploy (from main only)
 | route generation | `modules/dex-routes.ts` — during `nuxt generate` only, one `GET /pokemon?limit=1025`, adds `/pokemon/<name>` shells to prerender and injects per-Pokémon title/description/OG/Twitter tags into each shell via Nitro `prerender:generate`; `routeRules['/pokemon/**'] = { ssr: false }` |
 | styling          | `assets/css/main.css` — tokens, display type, footer, reveal and reduced-motion; font `@fontsource-variable/tiktok-sans/wdth.css` (self-hosted) |
 | data source      | PokeAPI, no API key; official artwork from raw.githubusercontent.com                            |
-| design direction | `.taste-skill/direction.json` `direction.id` = `loud-flat-poster` (tracked)                    |
+| design direction | `.taste-skill/direction.json` `direction.id` = `loud-flat-poster` (local only, `.git/info/exclude`)                    |
 | runtime          | `.node-version:1` = 24                                                                         |
 | deploy           | Cloudflare Worker static assets at https://pokedex.engg.app (sg208 account), `pnpm run deploy` from `main` (`wrangler.jsonc`) |
 | CI/CD            | none — no `.github/` directory; deploy is manual                                               |
