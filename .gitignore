@@ -63,3 +63,7 @@ playwright/.cache
 
 # wrangler
 .wrangler/
+
+# taste-skill inspector screenshots, vitest cache
+.taste-skill/inspect*/
+.vitest/

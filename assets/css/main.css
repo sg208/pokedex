@@ -1,0 +1,205 @@
+@import 'tailwindcss';
+
+/* Poster fields: bone page, coral, black, green and yellow chapters. */
+:root {
+  --bg: #e6e0d2;
+  --surface: #dcd5c5;
+  --ink: #1a1a1a;
+  --muted: #5f5b52;
+  --accent: #18bc42;
+  --accent-ink: #1a1a1a;
+  --coral: #ed4b44;
+  --yellow: #f2c21a;
+  --field-black: #1a1a1a;
+  --field-black-ink: #e6e0d2;
+  --pale: #ffffff;
+  --focus: #1a1a1a;
+
+  --margin: 16px;
+  --step-small: 0.875rem;
+  --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-chapter: 300ms;
+  --duration-reveal: 600ms;
+  --duration-press: 120ms;
+
+  color-scheme: light;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --margin: clamp(20px, 2vw, 28px);
+  }
+}
+
+@theme inline {
+  --font-sans: 'TikTok Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --color-ground: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-coral: var(--coral);
+  --color-yellow: var(--yellow);
+  --color-pale: var(--pale);
+  --color-field-black: var(--field-black);
+  --color-field-black-ink: var(--field-black-ink);
+}
+
+html {
+  background: var(--bg);
+  overflow-x: clip;
+  scroll-padding-top: 4.5rem;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--step-body);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-wrap: break-word;
+}
+
+/* One horizontal margin token for every section */
+.page-frame {
+  padding-inline: var(--margin);
+}
+
+.text-small {
+  font-size: var(--step-small);
+}
+
+/* Display type: widest setting of the variable font, shouted */
+.display {
+  font-weight: 800;
+  font-stretch: 150%;
+  text-transform: uppercase;
+  line-height: 0.85;
+  letter-spacing: -0.01em;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 4px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* Fields whose ink is bone need a bone ring */
+[data-ink='#e6e0d2'] :focus-visible {
+  outline-color: var(--field-black-ink);
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* Flat panels meet edge to edge; nothing is rounded */
+.field-coral {
+  background: var(--coral);
+  color: var(--ink);
+}
+
+/* Sticky header: flat, takes the ground and ink of the chapter beneath it */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  min-height: 3.5rem;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--header-bg, var(--bg));
+  color: var(--header-ink, var(--ink));
+  transition-property: background-color, color;
+  transition-duration: var(--duration-chapter);
+  transition-timing-function: ease;
+}
+
+/* Footer: the shared sg208 contract, a full-bleed saturated field */
+.site-footer {
+  display: flex;
+  min-height: 90svh;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 4rem;
+  padding: 2rem var(--margin) 1.5rem;
+}
+
+.footer-fit {
+  container-type: inline-size;
+}
+
+.footer-display {
+  display: block;
+  width: fit-content;
+  font-size: 6.6cqi;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.footer-display:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.08em;
+}
+
+/* Press feedback on every real button and the hero action */
+button,
+.press {
+  transition-property: transform, background-color, color;
+  transition-duration: var(--duration-press);
+  transition-timing-function: var(--ease-out);
+}
+button:active:not(:disabled),
+.press:active {
+  transform: scale(0.97);
+}
+
+/* Entrances: hidden only after script marks them, so no-JS keeps content */
+.reveal-pending {
+  opacity: 0;
+  transform: translateY(24px);
+}
+.reveal-in {
+  opacity: 1;
+  transform: none;
+  transition-property: opacity, transform;
+  transition-duration: var(--duration-reveal);
+  transition-timing-function: var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal-pending {
+    opacity: 1;
+    transform: none;
+  }
+  button:active:not(:disabled),
+  .press:active {
+    transform: none;
+  }
+}
+
+@media print {
+  .reveal-pending {
+    opacity: 1;
+    transform: none;
+  }
+}
