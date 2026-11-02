@@ -123,14 +123,12 @@ body {
   transition-timing-function: ease;
 }
 
-/* Footer: the shared sg208 contract, a full-bleed saturated field */
+/* Footer: the shared sg208 contract, a full-bleed saturated field sized to its content */
 .site-footer {
   display: flex;
-  min-height: 90svh;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 4rem;
-  padding: 2rem var(--margin) 1.5rem;
+  gap: 2rem;
+  padding: 2.5rem var(--margin) 2rem;
 }
 
 /* Press feedback on every real button and the hero action */
