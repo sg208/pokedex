@@ -2,6 +2,7 @@ import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { useQueryClient } from '@tanstack/vue-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import DetailPage from '~/pages/pokemon/[name].vue';
+import dexIndex from '~/public/data/dex-index.json';
 
 const { fetchMock, showErrorMock } = vi.hoisted(() => ({
   fetchMock: vi.fn(),
@@ -37,7 +38,30 @@ const responses: Record<string, unknown> = {
       { base_stat: 255, stat: { name: 'speed', url: '' } },
       { base_stat: 300, stat: { name: 'attack', url: '' } },
     ],
+    moves: [
+      {
+        move: { name: 'thunderbolt', url: '' },
+        version_group_details: [
+          {
+            level_learned_at: 36,
+            move_learn_method: { name: 'level-up', url: '' },
+            version_group: { name: 'scarlet-violet', url: '' },
+          },
+        ],
+      },
+      {
+        move: { name: 'thunder-shock', url: '' },
+        version_group_details: [
+          {
+            level_learned_at: 1,
+            move_learn_method: { name: 'level-up', url: '' },
+            version_group: { name: 'scarlet-violet', url: '' },
+          },
+        ],
+      },
+    ],
   },
+  '/data/dex-index.json': dexIndex,
   [`${API}/pokemon-species/25`]: {
     id: 25,
     name: 'pikachu',
@@ -146,6 +170,40 @@ describe('pokemon detail page', () => {
       expect(wrapper.find('a[href="/pokemon/raichu"]').exists()).toBe(true)
     );
     expect(wrapper.find('a[href="/pokemon/pichu"]').exists()).toBe(true);
+  });
+
+  it('lists level-up moves in level order with type and power', async () => {
+    useHappyPath();
+    const wrapper = await mountDetail();
+    await vi.waitFor(() =>
+      expect(wrapper.find('table caption').text()).toBe(
+        'Moves learned by level'
+      )
+    );
+    const rows = wrapper.findAll('tbody tr');
+    expect(rows.map((row) => row.find('th .display').text())).toEqual([
+      'thunder shock',
+      'thunderbolt',
+    ]);
+    expect(rows[1]?.find('.move-class').text()).toBe('special');
+    expect(rows[1]?.text()).toContain('36');
+    expect(rows[1]?.text()).toContain('electric');
+    expect(rows[1]?.find('.power-fill').attributes('style')).toContain(
+      'width: 36%'
+    );
+    expect(wrapper.text()).toContain('As learned in scarlet violet.');
+  });
+
+  it('shows five nemeses and five easy opponents, ground types first', async () => {
+    useHappyPath();
+    const wrapper = await mountDetail();
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Arch nemeses'));
+    const lists = wrapper.findAll('ol');
+    expect(lists).toHaveLength(2);
+    expect(lists[0]?.findAll('li')).toHaveLength(5);
+    expect(lists[1]?.findAll('li')).toHaveLength(5);
+    expect(lists[0]?.find('li').text()).toContain('ground');
+    expect(lists[0]?.find('li').text()).toContain('hits ×0');
   });
 
   it('derives previous and next links from the names list', async () => {

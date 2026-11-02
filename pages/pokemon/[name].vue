@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { usePokemonDetail } from '~/composables/queries/pokemonQueries';
+import {
+  useDexIndex,
+  usePokemonDetail,
+} from '~/composables/queries/pokemonQueries';
 
 const route = useRoute();
 const name = computed(() => String(route.params.name ?? ''));
@@ -13,6 +16,25 @@ const flavorText = computed(() =>
 const genus = computed(() => pickGenus(species.data.value?.genera ?? []));
 const stages = computed(() =>
   chain.data.value ? flattenChain(chain.data.value.chain) : []
+);
+
+const dexIndex = useDexIndex();
+const moveset = computed(() =>
+  dexIndex.data.value && data.value
+    ? pickLevelUpMoves(
+        data.value.moves ?? [],
+        dexIndex.data.value.versionGroups,
+        dexIndex.data.value.moves
+      )
+    : null
+);
+const matchupTarget = computed(() =>
+  dexIndex.data.value?.pokemon.find((mon) => mon.id === data.value?.id)
+);
+const matchups = computed(() =>
+  dexIndex.data.value && matchupTarget.value
+    ? findMatchups(matchupTarget.value, dexIndex.data.value)
+    : null
 );
 
 // Unknown names, and forms outside the national dex, are a real 404
@@ -155,6 +177,26 @@ useHead((): DetailHead =>
       </section>
 
       <section
+        class="page-frame bg-field-black py-24 text-field-black-ink md:py-32"
+        data-chapter
+        data-bg="#1a1a1a"
+        data-ink="#e6e0d2"
+      >
+        <h2 v-reveal class="display section-title">Moves by level</h2>
+        <div v-reveal="1" class="mt-10 max-w-4xl">
+          <MoveList
+            v-if="moveset"
+            :moves="moveset.moves"
+            :version-group="moveset.versionGroup"
+          />
+          <p v-else-if="dexIndex.isError.value" role="alert">
+            Move details did not arrive.
+          </p>
+          <div v-else class="h-64 w-full bg-[#262626]" aria-busy="true" />
+        </div>
+      </section>
+
+      <section
         class="page-frame bg-yellow py-24 md:py-32"
         data-chapter
         data-bg="#f2c21a"
@@ -164,6 +206,46 @@ useHead((): DetailHead =>
         <div v-reveal="1" class="mt-10">
           <EvolutionChain :stages="stages" :current-name="data.name" />
         </div>
+      </section>
+
+      <section
+        class="page-frame bg-coral py-24 md:py-32"
+        data-chapter
+        data-bg="#ed4b44"
+        data-ink="#1a1a1a"
+      >
+        <h2 v-reveal class="display section-title">Match-ups</h2>
+        <p v-reveal="1" class="mt-6 max-w-prose">
+          Opponents that are also
+          {{
+            matchupTarget?.isFinal ? 'fully evolved' : 'yet to evolve fully'
+          }}, with a base stat total within
+          {{ Math.round((matchups?.bstBand ?? 0.1) * 100) }}% of
+          <span class="capitalize">{{ formatName(data.name) }}</span
+          >'s, ranked by how hard each side's own types hit the other.
+        </p>
+        <div v-if="matchups" class="mt-10 grid gap-16 lg:grid-cols-2 lg:gap-8">
+          <MatchupList
+            v-reveal="2"
+            title="Arch nemeses"
+            description="The five worst opponents to meet."
+            empty-text="No opponent here has the type edge."
+            :matchups="matchups.nemeses"
+            :current-name="data.name"
+          />
+          <MatchupList
+            v-reveal="3"
+            title="Slaughterhouse"
+            description="The five easiest opponents to beat."
+            empty-text="No opponent here is at a type disadvantage."
+            :matchups="matchups.prey"
+            :current-name="data.name"
+          />
+        </div>
+        <p v-else-if="dexIndex.isError.value" role="alert" class="mt-10">
+          Match-up data did not arrive.
+        </p>
+        <div v-else class="mt-10 h-64 w-full bg-surface" aria-busy="true" />
       </section>
 
       <section

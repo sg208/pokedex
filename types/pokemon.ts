@@ -19,6 +19,7 @@ export interface PokemonDetail {
   types: { slot: number; type: NamedResource }[];
   abilities: { ability: NamedResource; is_hidden: boolean }[];
   stats: { base_stat: number; stat: NamedResource }[];
+  moves?: PokemonMove[];
 }
 
 export interface PokemonSpecies {
@@ -57,4 +58,37 @@ export interface PageParam {
 export interface EvolutionStage {
   id: number;
   name: string;
+}
+
+export interface PokemonMove {
+  move: NamedResource;
+  version_group_details: {
+    level_learned_at: number;
+    move_learn_method: NamedResource;
+    version_group: NamedResource;
+  }[];
+}
+
+// public/data/dex-index.json, written by scripts/build-dex-index.ts
+export interface DexIndexPokemon {
+  id: number;
+  name: string;
+  types: string[];
+  bst: number;
+  stage: number;
+  isFinal: boolean;
+}
+
+export interface DexIndexMove {
+  type: string;
+  power: number | null;
+  damageClass: string;
+}
+
+export interface DexIndex {
+  types: string[];
+  chart: number[][];
+  pokemon: DexIndexPokemon[];
+  moves: Record<string, DexIndexMove>;
+  versionGroups: Record<string, number>;
 }

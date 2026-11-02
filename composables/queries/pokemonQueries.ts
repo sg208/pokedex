@@ -7,6 +7,7 @@ import {
 } from '@tanstack/vue-query';
 import type { MaybeRefOrGetter } from 'vue';
 import type {
+  DexIndex,
   EvolutionChainResponse,
   PageParam,
   PokemonDetail,
@@ -47,6 +48,7 @@ export const pokemonKeys = {
   species: (idOrName: string | number) =>
     [...pokemonKeys.all, 'species', idOrName] as const,
   chain: (id: number) => [...pokemonKeys.all, 'chain', id] as const,
+  dexIndex: () => [...pokemonKeys.all, 'dex-index'] as const,
 };
 
 const assertShape = (isValid: boolean, what: string): void => {
@@ -105,6 +107,30 @@ export const fetchChain = async (
   assertShape(Array.isArray(data?.chain?.evolves_to), `evolution chain ${id}`);
   return data;
 };
+
+// Same-origin static snapshot from scripts/build-dex-index.ts
+export const DEX_INDEX_URL = '/data/dex-index.json';
+
+export const fetchDexIndex = async (): Promise<DexIndex> => {
+  const data = await $fetch<DexIndex>(DEX_INDEX_URL);
+  assertShape(
+    Array.isArray(data?.pokemon) &&
+      data.pokemon.length === DEX_MAX &&
+      Array.isArray(data.chart) &&
+      data.chart.length === data.types?.length &&
+      typeof data.moves === 'object',
+    'dex index'
+  );
+  return data;
+};
+
+// The snapshot only changes on deploy, so it never goes stale in a session
+export const useDexIndex = (): UseQueryReturnType<DexIndex, Error> =>
+  useQuery({
+    queryKey: pokemonKeys.dexIndex(),
+    queryFn: fetchDexIndex,
+    staleTime: Infinity,
+  });
 
 export const pokemonDetailQueryOptions = (
   name: string

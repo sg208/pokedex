@@ -22,7 +22,8 @@
     "test": "vitest run",
     "test:e2e": "pnpm build && playwright test",
     "build": "nuxt generate",
-    "deploy": "pnpm generate && wrangler deploy"
+    "deploy": "pnpm generate && wrangler deploy",
+    "data:refresh": "node --experimental-strip-types scripts/build-dex-index.ts"
   },
   "dependencies": {
     "@nuxt/eslint": "^1.10.0",

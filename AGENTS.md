@@ -22,43 +22,44 @@ pnpm run deploy    # pnpm generate && wrangler deploy (from main only)
 
 ## Task routing
 
-| Task                       | Route                                                                  |
-| -------------------------- | ---------------------------------------------------------------------- |
-| feature build              | `/enggflo-ship` (commits + pushes current branch, no PR)               |
-| bug                        | `/enggflo-bugfix`                                                      |
-| UI / visual               | `taste-skill:design-taste-frontend` + `.taste-skill/direction.json`    |
-| dependency review          | `/enggflo-maintenance` → `.backlog/` items                             |
-| backlog item               | `/enggflo-backlog`                                                     |
-| promote develop → main     | `/enggflo-release` (deploy source = `main`)                            |
+| Task                   | Route                                                               |
+| ---------------------- | ------------------------------------------------------------------- |
+| feature build          | `/enggflo-ship` (commits + pushes current branch, no PR)            |
+| bug                    | `/enggflo-bugfix`                                                   |
+| UI / visual            | `taste-skill:design-taste-frontend` + `.taste-skill/direction.json` |
+| dependency review      | `/enggflo-maintenance` → `.backlog/` items                          |
+| backlog item           | `/enggflo-backlog`                                                  |
+| promote develop → main | `/enggflo-release` (deploy source = `main`)                         |
 
 ## Architecture
 
-| Concept          | Path / state                                                                                   |
-| ---------------- | ---------------------------------------------------------------------------------------------- |
-| stack            | Nuxt 4 · Nuxt UI 4 (`UApp` only) · Tailwind v4 · TanStack Vue Query 5 · pnpm 10 (`package.json`) |
-| pages            | `pages/index.vue` (hero, filters, grid) · `pages/pokemon/[name].vue` (detail) · `pages/{privacy,terms,accessibility}.vue` · `error.vue` |
-| components       | `components/` — Hero, Header, Footer, PokemonCard/Grid, DexFilters, StatBars, PokemonFacts, EvolutionChain, PokemonPager, LegalPage |
-| data layer       | `composables/queries/pokemonQueries.ts` (keys, typed fetchers, composables) · `useTypeIndex.ts` (18 `/type` lists -> id to primary type) · `composables/useDexFilter.ts` |
-| pure helpers     | `utils/{pokemon,dex,evolution,typeStyles}.ts` · types in `types/pokemon.ts`                     |
-| query client     | `plugins/vue-query.ts` — staleTime/gcTime 24h, retry 2, no refetch on focus                     |
-| route generation | `modules/dex-routes.ts` — during `nuxt generate` only, one `GET /pokemon?limit=1025`, adds `/pokemon/<name>` shells to prerender and injects per-Pokémon title/description/OG/Twitter tags into each shell via Nitro `prerender:generate`; `routeRules['/pokemon/**'] = { ssr: false }` |
-| styling          | `assets/css/main.css` — tokens, display type, footer, reveal and reduced-motion; font `@fontsource-variable/tiktok-sans/wdth.css` (self-hosted) |
-| data source      | PokeAPI, no API key; official artwork from raw.githubusercontent.com                            |
-| design direction | `.taste-skill/direction.json` `direction.id` = `loud-flat-poster` (local only, `.git/info/exclude`)                    |
-| runtime          | `.node-version:1` = 24                                                                         |
-| deploy           | Cloudflare Worker static assets at https://pokedex.engg.app (sg208 account), `pnpm run deploy` from `main` (`wrangler.jsonc`) |
-| CI/CD            | none — no `.github/` directory; deploy is manual                                               |
-| branches         | `main` = default + deploy source · `develop` = integration                                     |
+| Concept          | Path / state                                                                                                                                                                                                                                                                                                                    |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| stack            | Nuxt 4 · Nuxt UI 4 (`UApp` only) · Tailwind v4 · TanStack Vue Query 5 · pnpm 10 (`package.json`)                                                                                                                                                                                                                                |
+| pages            | `pages/index.vue` (hero, filters, grid) · `pages/pokemon/[name].vue` (detail) · `pages/{privacy,terms,accessibility}.vue` · `error.vue`                                                                                                                                                                                         |
+| components       | `components/` — Hero, Header, Footer, PokemonCard/Grid, DexFilters, StatBars, PokemonFacts, EvolutionChain, PokemonPager, LegalPage                                                                                                                                                                                             |
+| data layer       | `composables/queries/pokemonQueries.ts` (keys, typed fetchers, composables) · `useTypeIndex.ts` (18 `/type` lists -> id to primary type) · `composables/useDexFilter.ts`                                                                                                                                                        |
+| static snapshot  | `public/data/dex-index.json` (types, base stat totals, evolution standing, type chart, move metadata) from `scripts/build-dex-index.ts` via `pnpm data:refresh` (one PokeAPI GraphQL request; run by hand, commit the result) · read by `useDexIndex` for level-up moves (`utils/moves.ts`) and match-ups (`utils/matchups.ts`) |
+| pure helpers     | `utils/{pokemon,dex,evolution,typeStyles,moves,matchups}.ts` · types in `types/pokemon.ts`                                                                                                                                                                                                                                      |
+| query client     | `plugins/vue-query.ts` — staleTime/gcTime 24h, retry 2, no refetch on focus                                                                                                                                                                                                                                                     |
+| route generation | `modules/dex-routes.ts` — during `nuxt generate` only, one `GET /pokemon?limit=1025`, adds `/pokemon/<name>` shells to prerender and injects per-Pokémon title/description/OG/Twitter tags into each shell via Nitro `prerender:generate`; `routeRules['/pokemon/**'] = { ssr: false }`                                         |
+| styling          | `assets/css/main.css` — tokens, display type, footer, reveal and reduced-motion; font `@fontsource-variable/tiktok-sans/wdth.css` (self-hosted)                                                                                                                                                                                 |
+| data source      | PokeAPI, no API key; official artwork from raw.githubusercontent.com                                                                                                                                                                                                                                                            |
+| design direction | `.taste-skill/direction.json` `direction.id` = `loud-flat-poster` (local only, `.git/info/exclude`)                                                                                                                                                                                                                             |
+| runtime          | `.node-version:1` = 24                                                                                                                                                                                                                                                                                                          |
+| deploy           | Cloudflare Worker static assets at https://pokedex.engg.app (sg208 account), `pnpm run deploy` from `main` (`wrangler.jsonc`)                                                                                                                                                                                                   |
+| CI/CD            | none — no `.github/` directory; deploy is manual                                                                                                                                                                                                                                                                                |
+| branches         | `main` = default + deploy source · `develop` = integration                                                                                                                                                                                                                                                                      |
 
 ## Test profile
 
-| field       | value                                                                        |
-| ----------- | ---------------------------------------------------------------------------- |
-| runner      | Vitest 5 + @nuxt/test-utils, `environment: 'nuxt'`, happy-dom (`vitest.config.ts`) |
-| command     | `pnpm test` (all), `pnpm test:e2e` (e2e), `pnpm vitest run tests/unit/pokemon.spec.ts` (one file)   |
+| field       | value                                                                                                                                                                                                                                                   |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| runner      | Vitest 5 + @nuxt/test-utils, `environment: 'nuxt'`, happy-dom (`vitest.config.ts`)                                                                                                                                                                      |
+| command     | `pnpm test` (all), `pnpm test:e2e` (e2e), `pnpm vitest run tests/unit/pokemon.spec.ts` (one file)                                                                                                                                                       |
 | conventions | `tests/unit/*.spec.ts` pure helpers and query layer · `tests/components/*.spec.ts` via `mountSuspended`; `$fetch` mocked with `mockNuxtImport('$fetch')` (a global stub does not work: Nuxt captures it at import); IntersectionObserver faked per test |
-| levels      | unit ✓ · component ✓ · e2e ✓ (Playwright, tests/e2e/*.e2e.ts, real PokeAPI)              |
-| enforced_by | local only (no CI; `.github/` absent)                                        |
+| levels      | unit ✓ · component ✓ · e2e ✓ (Playwright, tests/e2e/*.e2e.ts, real PokeAPI)                                                                                                                                                                             |
+| enforced_by | local only (no CI; `.github/` absent)                                                                                                                                                                                                                   |
 
 ## Project
 
