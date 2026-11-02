@@ -3,6 +3,10 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: false },
 
+  app: {
+    head: { htmlAttrs: { lang: 'en' } },
+  },
+
   modules: ['@nuxt/ui', '@nuxt/icon', '@nuxt/eslint', './modules/dex-routes'],
 
   // Detail pages are client-rendered shells; data loads in the browser

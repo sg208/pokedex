@@ -57,7 +57,7 @@ const handleType = (name: string): void => {
           class="type-chip"
           :style="{
             backgroundColor:
-              type === name ? 'var(--ink)' : getTypeStyle(name).bg,
+              type === name ? getTypeStyle(name).ink : getTypeStyle(name).bg,
             color:
               type === name ? getTypeStyle(name).bg : getTypeStyle(name).ink,
           }"

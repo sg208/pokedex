@@ -28,7 +28,7 @@ const handleLoadMore = (): void => {
 useInView(sentinel, handleLoadMore);
 
 const buttonClass =
-  'inline-flex min-h-12 items-center bg-ink px-6 font-bold text-ground disabled:opacity-60';
+  'inline-flex min-h-12 items-center bg-ink px-6 font-bold text-ground aria-disabled:opacity-60';
 </script>
 
 <template>
@@ -78,7 +78,7 @@ const buttonClass =
         v-if="hasMore && !isError"
         type="button"
         :class="buttonClass"
-        :disabled="isFetching"
+        :aria-disabled="isFetching"
         @click="handleLoadMore"
       >
         {{ isFetching ? 'Loading' : 'Load more' }}
