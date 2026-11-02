@@ -14,7 +14,8 @@ defineProps<Props>();
   <template v-else>
     <p class="font-bold">
       As learned in
-      <span class="capitalize">{{ formatName(versionGroup ?? '') }}</span>.
+      <span class="capitalize">{{ formatName(versionGroup ?? '') }}</span
+      >.
       <span class="font-normal">Evo means it learns the move on evolving.</span>
     </p>
     <table class="move-table mt-6">
