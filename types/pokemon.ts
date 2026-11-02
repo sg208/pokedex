@@ -85,10 +85,22 @@ export interface DexIndexMove {
   damageClass: string;
 }
 
+export type BattleFormKind = 'mega' | 'primal' | 'gmax';
+
+export interface DexIndexForm {
+  id: number;
+  name: string;
+  speciesId: number;
+  kind: BattleFormKind;
+  types: string[];
+  bst: number;
+}
+
 export interface DexIndex {
   types: string[];
   chart: number[][];
   pokemon: DexIndexPokemon[];
+  forms: DexIndexForm[];
   moves: Record<string, DexIndexMove>;
   versionGroups: Record<string, number>;
 }

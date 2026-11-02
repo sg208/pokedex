@@ -206,6 +206,17 @@ describe('pokemon detail page', () => {
     expect(lists[0]?.find('li').text()).toContain('hits ×0');
   });
 
+  it('shows battle forms from the whole chain, apart from evolutions', async () => {
+    useHappyPath();
+    const wrapper = await mountDetail();
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Battle forms'));
+    const forms = wrapper.findAll('.form');
+    expect(forms).toHaveLength(1);
+    expect(forms[0]?.text()).toContain('gigantamax pikachu');
+    expect(forms[0]?.text()).toContain('Dynamax');
+    expect(forms[0]?.find('img').attributes('src')).toMatch(/\/10199\.png$/);
+  });
+
   it('derives previous and next links from the names list', async () => {
     useHappyPath();
     fetchMock.mockImplementation(async (url: string) => {

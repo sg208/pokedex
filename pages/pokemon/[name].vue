@@ -28,6 +28,14 @@ const moveset = computed(() =>
       )
     : null
 );
+const battleForms = computed(() => {
+  const index = dexIndex.data.value;
+  if (!index || !data.value) return [];
+  const chainIds = stages.value.length
+    ? stages.value.map((stage) => stage.id)
+    : [data.value.id];
+  return pickBattleForms(chainIds, index.forms, index.pokemon);
+});
 const matchupTarget = computed(() =>
   dexIndex.data.value?.pokemon.find((mon) => mon.id === data.value?.id)
 );
@@ -204,8 +212,18 @@ useHead((): DetailHead =>
       >
         <h2 v-reveal class="display section-title">Evolutions</h2>
         <div v-reveal="1" class="mt-10">
-          <EvolutionChain :stages="stages" :current-name="data.name" />
+          <EvolutionChain
+            :stages="stages"
+            :current-name="data.name"
+            :has-battle-forms="battleForms.length > 0"
+          />
         </div>
+        <BattleForms
+          v-if="battleForms.length"
+          v-reveal="2"
+          class="mt-16"
+          :forms="battleForms"
+        />
       </section>
 
       <section

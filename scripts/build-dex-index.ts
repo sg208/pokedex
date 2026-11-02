@@ -22,6 +22,19 @@ const QUERY = `{
     damageClass: pokemon_v2_movedamageclass { name }
   }
   versionGroups: pokemon_v2_versiongroup(order_by: {order: asc}) { name order }
+  battleForms: pokemon_v2_pokemon(
+    where: {
+      is_default: {_eq: false}
+      pokemon_species_id: {_lte: ${DEX_MAX}}
+      pokemon_v2_pokemonforms: {_or: [{is_mega: {_eq: true}}, {form_name: {_in: ["primal", "gmax"]}}]}
+    }
+    order_by: {id: asc}
+  ) {
+    id name speciesId: pokemon_species_id
+    types: pokemon_v2_pokemontypes(order_by: {slot: asc}) { type: pokemon_v2_type { name } }
+    stats: pokemon_v2_pokemonstats { base_stat }
+    forms: pokemon_v2_pokemonforms { form_name }
+  }
 }`;
 
 interface Response {
@@ -46,6 +59,14 @@ interface Response {
       damageClass: { name: string } | null;
     }[];
     versionGroups: { name: string; order: number }[];
+    battleForms: {
+      id: number;
+      name: string;
+      speciesId: number;
+      types: { type: { name: string } }[];
+      stats: { base_stat: number }[];
+      forms: { form_name: string }[];
+    }[];
   };
 }
 
@@ -114,13 +135,36 @@ const main = async (): Promise<void> => {
     data.versionGroups.map((group) => [group.name, group.order])
   );
 
+  // Mega Evolution, Primal Reversion and Gigantamax: in-battle changes, not evolutions
+  const forms = data.battleForms.map((form) => {
+    const formName = form.forms[0]?.form_name ?? '';
+    return {
+      id: form.id,
+      name: form.name,
+      speciesId: form.speciesId,
+      kind: formName.startsWith('mega') ? 'mega' : formName,
+      types: form.types.map((entry) => entry.type.name),
+      bst: form.stats.reduce((sum, stat) => sum + stat.base_stat, 0),
+    };
+  });
+  if (forms.length < 50 || forms.some((form) => form.types.length === 0)) {
+    fail('battle forms look incomplete');
+  }
+
   await mkdir(OUT_DIR, { recursive: true });
   await writeFile(
     new URL('dex-index.json', OUT_DIR),
-    `${JSON.stringify({ types, chart, pokemon, moves, versionGroups })}\n`
+    `${JSON.stringify({
+      types,
+      chart,
+      pokemon,
+      forms,
+      moves,
+      versionGroups,
+    })}\n`
   );
   process.stdout.write(
-    `dex-index: ${pokemon.length} Pokémon, ${data.moves.length} moves\n`
+    `dex-index: ${pokemon.length} Pokémon, ${forms.length} battle forms, ${data.moves.length} moves\n`
   );
 };
 

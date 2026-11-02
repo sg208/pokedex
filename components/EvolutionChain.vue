@@ -4,13 +4,18 @@ import type { EvolutionStage } from '~/types/pokemon';
 interface Props {
   stages: EvolutionStage[];
   currentName: string;
+  hasBattleForms?: boolean;
 }
 
 defineProps<Props>();
 </script>
 
 <template>
-  <p v-if="stages.length <= 1">This Pokémon does not evolve.</p>
+  <p v-if="stages.length <= 1">
+    This Pokémon does not evolve{{
+      hasBattleForms ? ', but it can change form in battle.' : '.'
+    }}
+  </p>
   <ul v-else class="grid grid-cols-2 gap-0.5 md:grid-cols-3 xl:grid-cols-4">
     <li v-for="(stage, index) in stages" :key="stage.id">
       <NuxtLink

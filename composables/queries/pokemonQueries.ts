@@ -116,6 +116,7 @@ export const fetchDexIndex = async (): Promise<DexIndex> => {
   assertShape(
     Array.isArray(data?.pokemon) &&
       data.pokemon.length === DEX_MAX &&
+      Array.isArray(data.forms) &&
       Array.isArray(data.chart) &&
       data.chart.length === data.types?.length &&
       typeof data.moves === 'object',
