@@ -77,6 +77,14 @@ describe('pokemon helpers', () => {
     );
   });
 
+  it('joins words split by a soft hyphen, with or without a line break', () => {
+    // Unown (species 201, Gold) is "tab\u00AD\flets."; the others cover \n and no break
+    expect(cleanFlavorText('tab\u00AD\flets.')).toBe('tablets.');
+    expect(cleanFlavorText('tab\u00AD\nlets')).toBe('tablets');
+    expect(cleanFlavorText('tab\u00ADlets')).toBe('tablets');
+    expect(cleanFlavorText('plain tablets')).toBe('plain tablets');
+  });
+
   it('picks English flavor text and genus', () => {
     const flavors = [
       { flavor_text: 'ほげ', language: { name: 'ja' } },

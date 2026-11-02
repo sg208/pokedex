@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDexNames } from '~/composables/queries/pokemonQueries';
+import { useDexIndex, useDexNames } from '~/composables/queries/pokemonQueries';
 import { usePokemonPrefetch } from '~/composables/usePokemonPrefetch';
-import { parseDexEntries } from '~/utils/dex';
+import { displayNameFor, parseDexEntries } from '~/utils/dex';
 
 interface Props {
   name: string;
@@ -11,6 +11,10 @@ const props = defineProps<Props>();
 
 const { prefetchOn } = usePokemonPrefetch();
 const names = useDexNames(true);
+const dexIndex = useDexIndex();
+
+const nameOf = (entry: { id: number; name: string }): string =>
+  displayNameFor(dexIndex.data.value, entry.id) ?? formatName(entry.name);
 
 const entries = computed(() =>
   parseDexEntries(names.data.value?.results ?? [])
@@ -35,7 +39,7 @@ const next = computed(() =>
       v-on="prefetchOn(previous.name)"
     >
       <span class="font-bold">Previous {{ formatDexNumber(previous.id) }}</span>
-      <span class="display pager-name">{{ formatName(previous.name) }}</span>
+      <span class="display pager-name">{{ nameOf(previous) }}</span>
     </NuxtLink>
     <NuxtLink
       v-if="next"
@@ -44,7 +48,7 @@ const next = computed(() =>
       v-on="prefetchOn(next.name)"
     >
       <span class="font-bold">Next {{ formatDexNumber(next.id) }}</span>
-      <span class="display pager-name">{{ formatName(next.name) }}</span>
+      <span class="display pager-name">{{ nameOf(next) }}</span>
     </NuxtLink>
   </nav>
 </template>

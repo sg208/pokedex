@@ -44,6 +44,14 @@ describe('PokemonGrid', () => {
     expect(wrapper.findAll('a[href^="/pokemon/"]')).toHaveLength(2);
   });
 
+  it('shows display names from the map and the slug for the rest', async () => {
+    const wrapper = await mountGrid({
+      displayNames: new Map([[4, 'Charmander!']]),
+    });
+    expect(wrapper.text()).toContain('Charmander!');
+    expect(wrapper.text()).toContain('bulbasaur');
+  });
+
   it('shows a Load more button that emits loadMore', async () => {
     const wrapper = await mountGrid();
     const button = wrapper.find('button');

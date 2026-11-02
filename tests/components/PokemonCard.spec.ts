@@ -38,6 +38,20 @@ describe('PokemonCard', () => {
     expect(img.attributes('height')).toBeTruthy();
   });
 
+  it('shows the display name when given and the slug before that', async () => {
+    const named = await mountCard({
+      id: 122,
+      name: 'mr-mime',
+      displayName: 'Mr. Mime',
+    });
+    expect(named.text()).toContain('Mr. Mime');
+    expect(named.find('img').attributes('alt')).toBe('Mr. Mime');
+    expect(named.find('a').attributes('href')).toBe('/pokemon/mr-mime');
+    const plain = await mountCard({ id: 122, name: 'mr-mime' });
+    expect(plain.text()).toContain('mr mime');
+    expect(plain.text()).not.toContain('Mr. Mime');
+  });
+
   it('takes the primary type colours and falls back to a neutral field', async () => {
     const typed = await mountCard();
     expect(typed.find('a').attributes('style')).toContain('#f7d02c');

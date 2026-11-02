@@ -8,10 +8,12 @@ interface Props {
   isFetching: boolean;
   isError: boolean;
   typeIndex?: Map<number, string>;
+  displayNames?: Map<number, string>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   typeIndex: () => new Map<number, string>(),
+  displayNames: () => new Map<number, string>(),
 });
 
 const emit = defineEmits<{
@@ -48,7 +50,7 @@ const buttonClass =
       v-else-if="items.length === 0 && !isFetching"
       class="bg-surface p-6 font-bold"
     >
-      No Pokémon match that search. Try another name or clear the type.
+      No Pokémon match that search. Try another name or clear the filters.
     </p>
 
     <ul
@@ -62,6 +64,7 @@ const buttonClass =
         :name="item.name"
         :index="index"
         :type-name="typeIndex.get(item.id)"
+        :display-name="displayNames.get(item.id)"
       />
     </ul>
 

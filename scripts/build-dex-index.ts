@@ -1,5 +1,5 @@
 // Writes public/data/dex-index.json: a static snapshot of types, base stat
-// totals, evolution standing, the type chart and level-up move metadata.
+// totals, display names, generation, rarity, stats, evolution standing, regular abilities, the type chart and level-up move metadata.
 // One PokeAPI GraphQL request; run by hand with `pnpm data:refresh`.
 import { writeFile, mkdir } from 'node:fs/promises';
 
@@ -13,8 +13,16 @@ const QUERY = `{
   pokemon: pokemon_v2_pokemon(where: {id: {_lte: ${DEX_MAX}}}, order_by: {id: asc}) {
     id name
     types: pokemon_v2_pokemontypes(order_by: {slot: asc}) { type: pokemon_v2_type { name } }
-    stats: pokemon_v2_pokemonstats { base_stat }
-    species: pokemon_v2_pokemonspecy { evolves_from_species_id }
+    stats: pokemon_v2_pokemonstats(order_by: {stat_id: asc}) { base_stat }
+    species: pokemon_v2_pokemonspecy {
+      evolves_from_species_id
+      generation_id is_legendary is_mythical
+      names: pokemon_v2_pokemonspeciesnames(where: {language_id: {_eq: 9}}) { name }
+    }
+    abilities: pokemon_v2_pokemonabilities(
+      where: {is_hidden: {_eq: false}}
+      order_by: {slot: asc}
+    ) { ability: pokemon_v2_ability { name } }
   }
   moves: pokemon_v2_move(order_by: {name: asc}) {
     name power
@@ -50,7 +58,14 @@ interface Response {
       name: string;
       types: { type: { name: string } }[];
       stats: { base_stat: number }[];
-      species: { evolves_from_species_id: number | null };
+      species: {
+        evolves_from_species_id: number | null;
+        generation_id: number | null;
+        is_legendary: boolean | null;
+        is_mythical: boolean | null;
+        names: { name: string }[];
+      };
+      abilities: { ability: { name: string } }[];
     }[];
     moves: {
       name: string;
@@ -116,9 +131,27 @@ const main = async (): Promise<void> => {
     bst: mon.stats.reduce((sum, stat) => sum + stat.base_stat, 0),
     stage: stageOf(mon.id),
     isFinal: !parentIds.has(mon.id),
+    abilities: mon.abilities.map((entry) => entry.ability.name),
+    displayName: mon.species.names[0]?.name ?? '',
+    generation: mon.species.generation_id ?? 0,
+    isLegendary: mon.species.is_legendary === true,
+    isMythical: mon.species.is_mythical === true,
+    stats: mon.stats.map((stat) => stat.base_stat),
   }));
   if (pokemon.some((mon) => mon.types.length === 0 || mon.bst === 0)) {
     fail('a Pokémon is missing types or stats');
+  }
+  if (pokemon.some((mon) => mon.abilities.length === 0)) {
+    fail('a Pokémon is missing regular abilities');
+  }
+
+  if (
+    pokemon.some(
+      (mon) =>
+        mon.displayName === '' || mon.generation < 1 || mon.stats.length !== 6
+    )
+  ) {
+    fail('a Pokémon is missing its name, generation or six stats');
   }
 
   const moves = Object.fromEntries(

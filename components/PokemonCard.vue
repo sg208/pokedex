@@ -6,12 +6,14 @@ interface Props {
   name: string;
   index: number;
   typeName?: string;
+  displayName?: string;
 }
 
 const props = defineProps<Props>();
 
 const { prefetchOn } = usePokemonPrefetch();
 const style = computed(() => getTypeStyle(props.typeName));
+const shownName = computed(() => props.displayName ?? formatName(props.name));
 const tilt = computed(() => (props.index % 2 === 0 ? 4 : -5));
 </script>
 
@@ -27,14 +29,14 @@ const tilt = computed(() => (props.index % 2 === 0 ? 4 : -5));
       <span class="card-number tabular">{{ formatDexNumber(id) }}</span>
       <img
         :src="artworkUrl(id)"
-        :alt="formatName(name)"
+        :alt="shownName"
         width="475"
         height="475"
         loading="lazy"
         class="card-art"
         :style="{ '--tilt': `${tilt}deg` }"
       />
-      <span class="card-name display">{{ formatName(name) }}</span>
+      <span class="card-name display">{{ shownName }}</span>
     </NuxtLink>
   </li>
 </template>

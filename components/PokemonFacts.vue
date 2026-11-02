@@ -32,6 +32,14 @@ defineProps<Props>();
   align-items: end;
   gap: 0;
 }
+dt {
+  overflow-wrap: normal;
+}
+@media (max-width: 480px) {
+  .facts {
+    grid-template-columns: 1fr;
+  }
+}
 .fact {
   container-type: inline-size;
   display: flex;

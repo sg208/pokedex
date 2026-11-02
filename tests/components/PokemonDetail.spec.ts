@@ -34,10 +34,20 @@ const responses: Record<string, unknown> = {
       { ability: { name: 'lightning-rod', url: '' }, is_hidden: true },
     ],
     stats: [
-      { base_stat: 35, stat: { name: 'hp', url: '' } },
-      { base_stat: 255, stat: { name: 'speed', url: '' } },
-      { base_stat: 300, stat: { name: 'attack', url: '' } },
+      { base_stat: 35, effort: 0, stat: { name: 'hp', url: '' } },
+      { base_stat: 255, effort: 2, stat: { name: 'speed', url: '' } },
+      { base_stat: 300, effort: 0, stat: { name: 'attack', url: '' } },
     ],
+    sprites: {
+      front_default: 'https://img.test/sprite/25.png',
+      other: {
+        'official-artwork': {
+          front_default: 'https://img.test/artwork/25.png',
+          front_shiny: 'https://img.test/artwork/shiny/25.png',
+        },
+      },
+    },
+    cries: { latest: 'https://img.test/cries/25.ogg', legacy: null },
     moves: [
       {
         move: { name: 'thunderbolt', url: '' },
@@ -66,11 +76,21 @@ const responses: Record<string, unknown> = {
     id: 25,
     name: 'pikachu',
     flavor_text_entries: [
-      { flavor_text: 'ほげ', language: { name: 'ja', url: '' } },
+      {
+        flavor_text: 'ほげ',
+        language: { name: 'ja', url: '' },
+        version: { name: 'red', url: '' },
+      },
+      {
+        flavor_text: 'Older entry.',
+        language: { name: 'en', url: '' },
+        version: { name: 'red', url: '' },
+      },
       {
         flavor_text:
           'When several of\fthese POKéMON\ngather, electricity builds.',
         language: { name: 'en', url: '' },
+        version: { name: 'sword', url: '' },
       },
     ],
     genera: [
@@ -78,15 +98,67 @@ const responses: Record<string, unknown> = {
       { genus: 'Mouse Pokémon', language: { name: 'en', url: '' } },
     ],
     evolution_chain: { url: `${API}/evolution-chain/10/` },
+    is_baby: false,
+    is_legendary: false,
+    is_mythical: false,
+    generation: { name: 'generation-i', url: '' },
+    capture_rate: 190,
+    gender_rate: 4,
+    egg_groups: [
+      { name: 'field', url: '' },
+      { name: 'fairy', url: '' },
+    ],
+    hatch_counter: 10,
+    base_happiness: 50,
+    growth_rate: { name: 'medium', url: '' },
+    has_gender_differences: true,
+  },
+  [`${API}/ability/static`]: {
+    name: 'static',
+    effect_entries: [
+      {
+        effect: 'long',
+        short_effect: 'Contact may paralyze the attacker.',
+        language: { name: 'en', url: '' },
+      },
+    ],
+  },
+  [`${API}/ability/lightning-rod`]: {
+    name: 'lightning-rod',
+    effect_entries: [
+      {
+        effect: 'long',
+        short_effect: 'Draws in Electric moves.',
+        language: { name: 'en', url: '' },
+      },
+    ],
   },
   [`${API}/evolution-chain/10`]: {
     id: 10,
     chain: {
       species: named('pichu', 172),
+      evolution_details: [],
       evolves_to: [
         {
           species: named('pikachu', 25),
-          evolves_to: [{ species: named('raichu', 26), evolves_to: [] }],
+          evolution_details: [
+            {
+              trigger: { name: 'level-up', url: '' },
+              min_happiness: 220,
+            },
+          ],
+          evolves_to: [
+            {
+              species: named('raichu', 26),
+              evolution_details: [
+                {
+                  trigger: { name: 'use-item', url: '' },
+                  item: { name: 'thunder-stone', url: '' },
+                },
+              ],
+              evolves_to: [],
+            },
+          ],
         },
       ],
     },
@@ -119,10 +191,10 @@ describe('pokemon detail page', () => {
     });
   };
 
-  it('shows the name as the only h1, with the dex number', async () => {
+  it('shows the display name as the only h1, with the dex number', async () => {
     useHappyPath();
     const wrapper = await mountDetail();
-    await vi.waitFor(() => expect(wrapper.find('h1').text()).toBe('pikachu'));
+    await vi.waitFor(() => expect(wrapper.find('h1').text()).toBe('Pikachu'));
     expect(wrapper.findAll('h1')).toHaveLength(1);
     expect(wrapper.text()).toContain('#0025');
   });
@@ -150,9 +222,49 @@ describe('pokemon detail page', () => {
     const wrapper = await mountDetail();
     await vi.waitFor(() => expect(wrapper.text()).toContain('Mouse Pokémon'));
     expect(wrapper.text()).toContain(
-      'When several of these POKéMON gather, electricity builds.'
+      'When several of these Pokémon gather, electricity builds.'
     );
     expect(wrapper.text()).not.toContain('ほげ');
+  });
+
+  it('lets the reader pick the game the flavor text is from', async () => {
+    useHappyPath();
+    const wrapper = await mountDetail();
+    const select = await vi.waitFor(() => {
+      const found = wrapper.find('select');
+      expect(found.exists()).toBe(true);
+      return found;
+    });
+    expect(wrapper.find(`label[for="${select.attributes('id')}"]`).text()).toBe(
+      'Game'
+    );
+    await select.setValue('red');
+    expect(wrapper.text()).toContain('Older entry.');
+    expect(wrapper.text()).not.toContain('electricity builds');
+  });
+
+  it('shows the Pokédex data panel, and a shiny toggle that swaps the artwork', async () => {
+    useHappyPath();
+    const wrapper = await mountDetail();
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Catch rate'));
+    const terms = wrapper.findAll('dt').map((term) => term.text());
+    expect(terms).toEqual(
+      expect.arrayContaining(['Generation', 'Gender ratio', 'EV yield'])
+    );
+    expect(wrapper.text()).toContain('2 Speed');
+    expect(wrapper.text()).toContain('Generation I');
+    expect(wrapper.text()).toContain('50% male, 50% female');
+
+    const toggle = wrapper.find('button[aria-pressed]');
+    expect(wrapper.find('img.detail-art').attributes('src')).toBe(
+      'https://img.test/artwork/25.png'
+    );
+    await toggle.trigger('click');
+    expect(toggle.attributes('aria-pressed')).toBe('true');
+    expect(wrapper.find('img.detail-art').attributes('src')).toContain(
+      '/shiny/'
+    );
+    expect(wrapper.find('audio').exists()).toBe(false);
   });
 
   it('shows facts with formatted height, weight and base experience', async () => {
@@ -170,6 +282,36 @@ describe('pokemon detail page', () => {
       expect(wrapper.find('a[href="/pokemon/raichu"]').exists()).toBe(true)
     );
     expect(wrapper.find('a[href="/pokemon/pichu"]').exists()).toBe(true);
+  });
+
+  it('shows evolution methods and ability effects', async () => {
+    useHappyPath();
+    const wrapper = await mountDetail();
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Thunder Stone'));
+    expect(wrapper.text()).toContain('Friendship');
+    await vi.waitFor(() =>
+      expect(wrapper.text()).toContain('Contact may paralyze the attacker.')
+    );
+    expect(wrapper.text()).toContain('Hidden ability');
+  });
+
+  it('shows the weakness grid with Ground at ×2 for Pikachu', async () => {
+    useHappyPath();
+    const wrapper = await mountDetail();
+    await vi.waitFor(() =>
+      expect(
+        wrapper.find('ul[aria-label="Damage taken by attacking type"]').exists()
+      ).toBe(true)
+    );
+    const buckets = wrapper.findAll(
+      'ul[aria-label="Damage taken by attacking type"] > li'
+    );
+    expect(buckets).toHaveLength(5);
+    expect(buckets[1]?.text()).toContain('×2');
+    expect(buckets[1]?.text()).toContain('ground');
+    expect(wrapper.text()).toContain(
+      'Regular abilities that grant an immunity'
+    );
   });
 
   it('lists level-up moves in level order with type and power', async () => {

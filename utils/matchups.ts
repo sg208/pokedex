@@ -1,4 +1,5 @@
 import type { DexIndex, DexIndexPokemon } from '~/types/pokemon';
+import { guaranteedImmunities } from '~/utils/abilityImmunity';
 
 export interface Matchup {
   pokemon: DexIndexPokemon;
@@ -20,31 +21,50 @@ const BST_BANDS = [0.1, 0.2, 0.35];
 // Immunity counts as ×1/8 so it still ranks below ×0.25
 const FLOOR = 0.125;
 
+// Damage multiplier of one attacking type against the defender, with the
+// defender's regular abilities applied
+export const defensiveMultiplier = (
+  attackType: string,
+  defenderTypes: string[],
+  defenderAbilities: string[],
+  index: Pick<DexIndex, 'types' | 'chart'>
+): number => {
+  const position = (type: string): number => index.types.indexOf(type);
+  const typed = defenderTypes.reduce(
+    (product, defend) =>
+      product * (index.chart[position(attackType)]?.[position(defend)] ?? 1),
+    1
+  );
+  const { types, hasWonderGuard } = guaranteedImmunities(defenderAbilities);
+  if (types.includes(attackType)) return 0;
+  return hasWonderGuard && typed <= 1 ? 0 : typed;
+};
+
 // Best multiplier any of the attacker's types gets against the defender
 export const bestHit = (
   attacker: string[],
   defender: string[],
-  index: Pick<DexIndex, 'types' | 'chart'>
-): number => {
-  const position = (type: string): number => index.types.indexOf(type);
-  return Math.max(
+  index: Pick<DexIndex, 'types' | 'chart'>,
+  defenderAbilities: string[] = []
+): number =>
+  Math.max(
     ...attacker.map((attack) =>
-      defender.reduce(
-        (product, defend) =>
-          product * (index.chart[position(attack)]?.[position(defend)] ?? 1),
-        1
-      )
+      defensiveMultiplier(attack, defender, defenderAbilities, index)
     )
   );
-};
 
 const toMatchup = (
   target: DexIndexPokemon,
   opponent: DexIndexPokemon,
   index: Pick<DexIndex, 'types' | 'chart'>
 ): Matchup => {
-  const dealt = bestHit(opponent.types, target.types, index);
-  const taken = bestHit(target.types, opponent.types, index);
+  const dealt = bestHit(opponent.types, target.types, index, target.abilities);
+  const taken = bestHit(
+    target.types,
+    opponent.types,
+    index,
+    opponent.abilities
+  );
   return {
     pokemon: opponent,
     dealt,

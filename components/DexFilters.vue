@@ -1,15 +1,30 @@
 <script setup lang="ts">
 import { useDebounceFn } from '@vueuse/core';
+import type { Rarity, SortDir, SortKey } from '~/utils/dexSort';
 
 interface Props {
   query: string;
   type: string | null;
+  gen?: number | null;
+  rarity?: Rarity | null;
+  sort?: SortKey | null;
+  dir?: SortDir;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  gen: null,
+  rarity: null,
+  sort: null,
+  dir: 'desc',
+});
 const emit = defineEmits<{
   'update:query': [value: string];
   'update:type': [value: string | null];
+  'update:gen': [value: number | null];
+  'update:rarity': [value: Rarity | null];
+  'update:sort': [value: SortKey | null];
+  'update:dir': [value: SortDir];
+  clear: [];
 }>();
 
 const inputId = useId();
@@ -67,6 +82,19 @@ const handleType = (name: string): void => {
         </button>
       </li>
     </ul>
+
+    <DexControls
+      class="mt-4"
+      :gen="gen"
+      :rarity="rarity"
+      :sort="sort"
+      :dir="dir"
+      @update:gen="emit('update:gen', $event)"
+      @update:rarity="emit('update:rarity', $event)"
+      @update:sort="emit('update:sort', $event)"
+      @update:dir="emit('update:dir', $event)"
+      @clear="emit('clear')"
+    />
   </div>
 </template>
 

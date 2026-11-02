@@ -54,4 +54,28 @@ describe('DexFilters', () => {
     vi.advanceTimersByTime(250);
     expect(wrapper.emitted('update:query')).toEqual([['pika']]);
   });
+
+  it('renders the generation, rarity, sort and direction selects with labels', async () => {
+    const wrapper = await mountFilters({ gen: 1, sort: 'speed' });
+    const selects = wrapper.findAll('select');
+    expect(selects).toHaveLength(4);
+    selects.forEach((select) => {
+      expect(
+        wrapper.find(`label[for="${select.attributes('id')}"]`).text()
+      ).not.toBe('');
+    });
+    expect((selects[0]?.element as HTMLSelectElement).value).toBe('1');
+    expect((selects[2]?.element as HTMLSelectElement).value).toBe('speed');
+  });
+
+  it('passes control changes and Clear up', async () => {
+    const wrapper = await mountFilters({ rarity: 'legendary' });
+    await wrapper.findAll('select')[0]?.setValue('4');
+    expect(wrapper.emitted('update:gen')).toEqual([[4]]);
+    await wrapper
+      .findAll('button')
+      .find((b) => b.text() === 'Clear')
+      ?.trigger('click');
+    expect(wrapper.emitted('clear')).toHaveLength(1);
+  });
 });

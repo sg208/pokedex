@@ -38,7 +38,9 @@ const { prefetchOn } = usePokemonPrefetch();
           />
           <span class="matchup-body">
             <span class="display matchup-name">
-              {{ formatName(matchup.pokemon.name) }}
+              {{
+                matchup.pokemon.displayName || formatName(matchup.pokemon.name)
+              }}
             </span>
             <span class="flex flex-wrap gap-1">
               <span

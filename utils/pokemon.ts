@@ -1,3 +1,5 @@
+import { isPokemonSlug } from '~/utils/pokemonSlug';
+
 // National Pokédex ceiling: forms and later ids are out of scope
 export const DEX_MAX = 1025;
 
@@ -41,6 +43,7 @@ export const statPercent = (baseStat: number): number =>
 
 export const cleanFlavorText = (text: string): string =>
   text
+    .replace(/\u00AD\s*/g, '')
     .replace(/[\f\n\r]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
@@ -63,15 +66,13 @@ export const pickFlavorText = (entries: FlavorEntry[]): string => {
 export const pickGenus = (entries: GenusEntry[]): string =>
   entries.find((item) => item.language.name === 'en')?.genus ?? '';
 
-const NAME_PATTERN = /^[a-z0-9-]+$/;
-
 // Detail shells are prerendered per name; refuse anything that is not a slug
 export const buildDetailRoutes = (names: string[]): string[] => {
   if (!Array.isArray(names) || names.length === 0) {
     throw new Error('Expected a non-empty list of Pokémon names');
   }
   return names.map((name) => {
-    if (typeof name !== 'string' || !NAME_PATTERN.test(name)) {
+    if (!isPokemonSlug(name)) {
       throw new Error(`Malformed Pokémon name: ${String(name)}`);
     }
     return `/pokemon/${name}`;

@@ -132,10 +132,13 @@ tbody tr {
   transform-origin: left;
 }
 /* Bars sweep in, one row after another, when the table is revealed */
-:global(.reveal-pending) .power-fill {
+/* Plain descendant selectors: scoped CSS tags only .power-fill. Wrapping the
+   ancestor in the global pseudo-class compiled to a bare .reveal-pending and squashed
+   every pending section to 0 width (guarded by tests/unit/scopedStyles.spec.ts) */
+.reveal-pending .power-fill {
   transform: scaleX(0);
 }
-:global(.reveal-in) .power-fill {
+.reveal-in .power-fill {
   transition: transform 700ms var(--ease-out);
   transition-delay: calc(200ms + min(var(--row), 20) * 40ms);
 }

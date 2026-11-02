@@ -3,11 +3,12 @@ import { computed } from 'vue';
 import type { ComputedRef } from 'vue';
 import { fetchType, pokemonKeys } from '~/composables/queries/pokemonQueries';
 import type { TypeResponse } from '~/types/pokemon';
-import { buildPrimaryTypeIndex } from '~/utils/dex';
+import { buildPrimaryTypeIndex, buildTypeMembers } from '~/utils/dex';
 import { TYPE_NAMES } from '~/utils/typeStyles';
 
 interface TypeIndex {
   typeIndex: ComputedRef<Map<number, string>>;
+  typeMembers: ComputedRef<Map<number, string[]>>;
   isReady: ComputedRef<boolean>;
   isError: ComputedRef<boolean>;
 }
@@ -16,9 +17,10 @@ interface CombinedTypeIndex {
   isReady: boolean;
   isError: boolean;
   typeIndex: Map<number, string>;
+  typeMembers: Map<number, string[]>;
 }
 
-// Fetches the 18 /type lists in the browser and folds them into id -> primary type
+// Fetches the 18 /type lists in the browser and folds them into id -> primary type and id -> all types
 export const useTypeIndex = (): TypeIndex => {
   const combined = useQueries({
     queries: TYPE_NAMES.map((name) => ({
@@ -29,18 +31,26 @@ export const useTypeIndex = (): TypeIndex => {
     })),
     combine: (
       results: QueryObserverResult<TypeResponse, Error>[]
-    ): CombinedTypeIndex => ({
-      isReady: results.every((result) => result.isSuccess),
-      isError: results.some((result) => result.isError),
-      typeIndex: results.every((result) => result.isSuccess)
-        ? buildPrimaryTypeIndex(
-            results.flatMap((result) => (result.data ? [result.data] : []))
-          )
-        : new Map<number, string>(),
-    }),
+    ): CombinedTypeIndex => {
+      const isReady = results.every((result) => result.isSuccess);
+      const responses = results.flatMap((result) =>
+        result.data ? [result.data] : []
+      );
+      return {
+        isReady,
+        isError: results.some((result) => result.isError),
+        typeIndex: isReady
+          ? buildPrimaryTypeIndex(responses)
+          : new Map<number, string>(),
+        typeMembers: isReady
+          ? buildTypeMembers(responses)
+          : new Map<number, string[]>(),
+      };
+    },
   });
   return {
     typeIndex: computed(() => combined.value.typeIndex),
+    typeMembers: computed(() => combined.value.typeMembers),
     isReady: computed(() => combined.value.isReady),
     isError: computed(() => combined.value.isError),
   };
