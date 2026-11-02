@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useQueryClient } from '@tanstack/vue-query';
-import { pokemonDetailQueryOptions } from '~/composables/queries/pokemonQueries';
+import { usePokemonPrefetch } from '~/composables/usePokemonPrefetch';
 
 interface Props {
   id: number;
@@ -11,13 +10,9 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const queryClient = useQueryClient();
+const { prefetchOn } = usePokemonPrefetch();
 const style = computed(() => getTypeStyle(props.typeName));
 const tilt = computed(() => (props.index % 2 === 0 ? 4 : -5));
-
-const handlePrefetch = (): void => {
-  void queryClient.prefetchQuery(pokemonDetailQueryOptions(props.name));
-};
 </script>
 
 <template>
@@ -27,8 +22,7 @@ const handlePrefetch = (): void => {
       class="card-link"
       :style="{ backgroundColor: style.bg, color: style.ink }"
       :data-ink="style.ink"
-      @mouseenter="handlePrefetch"
-      @focus="handlePrefetch"
+      v-on="prefetchOn(name)"
     >
       <span class="card-number tabular">{{ formatDexNumber(id) }}</span>
       <img

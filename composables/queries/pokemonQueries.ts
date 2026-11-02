@@ -1,5 +1,6 @@
 import {
   type InfiniteData,
+  type QueryClient,
   type UseInfiniteQueryReturnType,
   type UseQueryReturnType,
   useInfiniteQuery,
@@ -21,6 +22,22 @@ import { DEX_MAX, getErrorStatus, parseIdFromUrl } from '~/utils/pokemon';
 interface DetailQueryOptions {
   queryKey: ReturnType<typeof pokemonKeys.detail>;
   queryFn: () => Promise<PokemonDetail>;
+}
+
+interface DexIndexQueryOptions {
+  queryKey: ReturnType<typeof pokemonKeys.dexIndex>;
+  queryFn: () => Promise<DexIndex>;
+  staleTime: number;
+}
+
+interface SpeciesQueryOptions {
+  queryKey: ReturnType<typeof pokemonKeys.species>;
+  queryFn: () => Promise<PokemonSpecies>;
+}
+
+interface ChainQueryOptions {
+  queryKey: ReturnType<typeof pokemonKeys.chain>;
+  queryFn: () => Promise<EvolutionChainResponse>;
 }
 
 interface DexNamesQueryOptions {
@@ -126,12 +143,14 @@ export const fetchDexIndex = async (): Promise<DexIndex> => {
 };
 
 // The snapshot only changes on deploy, so it never goes stale in a session
+export const dexIndexQueryOptions = (): DexIndexQueryOptions => ({
+  queryKey: pokemonKeys.dexIndex(),
+  queryFn: fetchDexIndex,
+  staleTime: Infinity,
+});
+
 export const useDexIndex = (): UseQueryReturnType<DexIndex, Error> =>
-  useQuery({
-    queryKey: pokemonKeys.dexIndex(),
-    queryFn: fetchDexIndex,
-    staleTime: Infinity,
-  });
+  useQuery(dexIndexQueryOptions());
 
 export const pokemonDetailQueryOptions = (
   name: string
@@ -139,6 +158,38 @@ export const pokemonDetailQueryOptions = (
   queryKey: pokemonKeys.detail(name),
   queryFn: (): Promise<PokemonDetail> => fetchPokemon(name),
 });
+
+export const speciesQueryOptions = (id: number): SpeciesQueryOptions => ({
+  queryKey: pokemonKeys.species(id),
+  queryFn: (): Promise<PokemonSpecies> => fetchSpecies(id),
+});
+
+export const chainQueryOptions = (id: number): ChainQueryOptions => ({
+  queryKey: pokemonKeys.chain(id),
+  queryFn: (): Promise<EvolutionChainResponse> => fetchChain(id),
+});
+
+// Warms everything the detail page loads: Pokémon -> species -> chain, plus
+// the snapshot. Cached entries are reused, so repeat calls cost nothing.
+export const prefetchPokemonDetail = async (
+  queryClient: QueryClient,
+  name: string
+): Promise<void> => {
+  void queryClient.prefetchQuery(dexIndexQueryOptions());
+  try {
+    const pokemon = await queryClient.fetchQuery(
+      pokemonDetailQueryOptions(name)
+    );
+    const species = await queryClient.fetchQuery(
+      speciesQueryOptions(pokemon.id)
+    );
+    await queryClient.prefetchQuery(
+      chainQueryOptions(parseIdFromUrl(species.evolution_chain.url))
+    );
+  } catch {
+    // Best effort: the page fetches (and reports errors) on its own
+  }
+};
 
 // The full name list is static for a session, so it never goes stale
 export const dexNamesQueryOptions = (): DexNamesQueryOptions => ({
@@ -179,8 +230,10 @@ export const usePokemonDetail = (
   });
   const speciesId = computed(() => pokemon.data.value?.id);
   const species = useQuery({
-    queryKey: computed(() => pokemonKeys.species(speciesId.value ?? 0)),
-    queryFn: () => fetchSpecies(speciesId.value as number),
+    queryKey: computed(
+      () => speciesQueryOptions(speciesId.value ?? 0).queryKey
+    ),
+    queryFn: () => speciesQueryOptions(speciesId.value as number).queryFn(),
     enabled: computed(() => speciesId.value !== undefined),
   });
   const chainId = computed(() => {
@@ -188,8 +241,8 @@ export const usePokemonDetail = (
     return url ? parseIdFromUrl(url) : undefined;
   });
   const chain = useQuery({
-    queryKey: computed(() => pokemonKeys.chain(chainId.value ?? 0)),
-    queryFn: () => fetchChain(chainId.value as number),
+    queryKey: computed(() => chainQueryOptions(chainId.value ?? 0).queryKey),
+    queryFn: () => chainQueryOptions(chainId.value as number).queryFn(),
     enabled: computed(() => chainId.value !== undefined),
   });
   return { pokemon, species, chain };

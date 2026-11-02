@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Matchup } from '~/utils/matchups';
+import { usePokemonPrefetch } from '~/composables/usePokemonPrefetch';
 
 interface Props {
   title: string;
@@ -10,6 +11,8 @@ interface Props {
 }
 
 defineProps<Props>();
+
+const { prefetchOn } = usePokemonPrefetch();
 </script>
 
 <template>
@@ -19,7 +22,11 @@ defineProps<Props>();
     <p v-if="matchups.length === 0" class="mt-6 font-bold">{{ emptyText }}</p>
     <ol v-else class="mt-6 grid gap-0.5">
       <li v-for="(matchup, index) in matchups" :key="matchup.pokemon.id">
-        <NuxtLink :to="`/pokemon/${matchup.pokemon.name}`" class="matchup">
+        <NuxtLink
+          :to="`/pokemon/${matchup.pokemon.name}`"
+          class="matchup"
+          v-on="prefetchOn(matchup.pokemon.name)"
+        >
           <span class="display tabular matchup-rank">{{ index + 1 }}</span>
           <img
             :src="artworkUrl(matchup.pokemon.id)"

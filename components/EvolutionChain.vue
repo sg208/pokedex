@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { EvolutionStage } from '~/types/pokemon';
+import { usePokemonPrefetch } from '~/composables/usePokemonPrefetch';
 
 interface Props {
   stages: EvolutionStage[];
@@ -8,6 +9,8 @@ interface Props {
 }
 
 defineProps<Props>();
+
+const { prefetchOn } = usePokemonPrefetch();
 </script>
 
 <template>
@@ -22,6 +25,7 @@ defineProps<Props>();
         :to="`/pokemon/${stage.name}`"
         class="stage"
         :aria-current="stage.name === currentName ? 'page' : undefined"
+        v-on="prefetchOn(stage.name)"
       >
         <img
           :src="artworkUrl(stage.id)"
