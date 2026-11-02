@@ -11,7 +11,9 @@ export const PAGE_SIZE = 24;
 export interface DexFilters {
   query: string;
   type: string | null;
-  typeIndex: Map<number, string>;
+  typeMembers: Map<number, string[]>;
+  // id to English display name; searched alongside the slug once the snapshot loads
+  displayNames?: Map<number, string>;
 }
 
 // Next infinite-query page param; the last page is shortened to end at DEX_MAX
@@ -29,21 +31,42 @@ export const parseDexEntries = (results: NamedResource[]): DexEntry[] =>
     .map((entry) => ({ id: parseIdFromUrl(entry.url), name: entry.name }))
     .filter((entry) => entry.id <= DEX_MAX);
 
-const normalise = (text: string): string =>
-  text.toLowerCase().replaceAll('-', ' ').trim();
+// Lowercase, no diacritics, ♀/♂ as f/m, letters and digits only
+export const foldSearchText = (text: string): string =>
+  text
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    .replaceAll('♀', 'f')
+    .replaceAll('♂', 'm')
+    .replace(/[^a-z0-9]/g, '');
+
+export const displayNameFor = (
+  index: { pokemon: { id: number; displayName: string }[] } | undefined,
+  id: number
+): string | undefined => {
+  const entry = index?.pokemon[id - 1];
+  return entry?.id === id ? entry.displayName : undefined;
+};
 
 export const filterDex = (
   entries: DexEntry[],
-  { query, type, typeIndex }: DexFilters
+  { query, type, typeMembers, displayNames }: DexFilters
 ): DexEntry[] => {
-  const needle = normalise(query);
-  const numeric = needle.replace(/^#/, '');
+  const trimmed = query.trim();
+  const numeric = trimmed.replace(/^#/, '');
+  const needle = foldSearchText(trimmed);
   return entries.filter((entry) => {
-    if (type && typeIndex.get(entry.id) !== type) return false;
-    if (!needle) return true;
+    if (type && !typeMembers.get(entry.id)?.includes(type)) return false;
+    if (!trimmed) return true;
     const isNumberMatch =
       /^\d+$/.test(numeric) && String(entry.id) === numeric.replace(/^0+/, '');
-    return isNumberMatch || normalise(entry.name).includes(needle);
+    if (isNumberMatch) return true;
+    if (!needle) return false;
+    return (
+      foldSearchText(entry.name).includes(needle) ||
+      foldSearchText(displayNames?.get(entry.id) ?? '').includes(needle)
+    );
   });
 };
 
@@ -60,4 +83,19 @@ export const buildPrimaryTypeIndex = (
     });
   });
   return index;
+};
+
+// Every type of each Pokémon (slot 1 and 2), for the type filter; forms above DEX_MAX are ignored
+export const buildTypeMembers = (
+  typeResponses: TypeResponse[]
+): Map<number, string[]> => {
+  const members = new Map<number, string[]>();
+  typeResponses.forEach((response) => {
+    response.pokemon.forEach((member) => {
+      const id = parseIdFromUrl(member.pokemon.url);
+      if (id > DEX_MAX) return;
+      members.set(id, [...(members.get(id) ?? []), response.name]);
+    });
+  });
+  return members;
 };

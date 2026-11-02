@@ -11,9 +11,6 @@ importers:
 
   .:
     dependencies:
-      '@nuxt/eslint':
-        specifier: ^1.10.0
-        version: 1.17.0(@nuxt/schema@4.6.3)(@typescript-eslint/utils@8.72.1(eslint@10.14.0(jiti@2.7.0))(typescript@5.9.3))(@vue/compiler-sfc@3.5.44)(confbox@0.3.2)(crossws@0.4.17(srvx@1.0.8))(dotenv@17.4.2)(esbuild@0.28.2)(eslint@10.14.0(jiti@2.7.0))(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.5)(rolldown@1.2.16)(rollup@4.67.4)(srvx@1.0.8)(typescript@5.9.3)(unplugin@3.7.0(esbuild@0.28.2)(rolldown@1.2.16)(rollup@4.67.4)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@nuxt/icon':
         specifier: ^2.1.0
         version: 2.6.2(@nuxt/schema@4.6.3)(confbox@0.3.2)(dotenv@17.4.2)(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.5)(rolldown@1.2.16)(unplugin@3.7.0(esbuild@0.28.2)(rolldown@1.2.16)(rollup@4.67.4)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(vue@3.5.44(typescript@5.9.3))
@@ -36,6 +33,9 @@ importers:
       '@fontsource-variable/tiktok-sans':
         specifier: ^5.3.0
         version: 5.3.0
+      '@nuxt/eslint':
+        specifier: ^1.10.0
+        version: 1.17.0(@nuxt/schema@4.6.3)(@typescript-eslint/utils@8.72.1(eslint@10.14.0(jiti@2.7.0))(typescript@5.9.3))(@vue/compiler-sfc@3.5.44)(confbox@0.3.2)(crossws@0.4.17(srvx@1.0.8))(dotenv@17.4.2)(esbuild@0.28.2)(eslint@10.14.0(jiti@2.7.0))(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.5)(rolldown@1.2.16)(rollup@4.67.4)(srvx@1.0.8)(typescript@5.9.3)(unplugin@3.7.0(esbuild@0.28.2)(rolldown@1.2.16)(rollup@4.67.4)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@nuxt/test-utils':
         specifier: ^4.3.4
         version: 4.3.4(87622db4b30cd6c9221765077250fced)

@@ -16,8 +16,8 @@ useHead({
 });
 
 const list = usePokemonInfiniteList();
-const { typeIndex, isReady: isTypeIndexReady } = useTypeIndex();
-const filter = useDexFilter(typeIndex, isTypeIndexReady);
+const { typeIndex, typeMembers, isReady: isTypeIndexReady } = useTypeIndex();
+const filter = useDexFilter(typeMembers, isTypeIndexReady);
 
 // Prerender the first page so the grid is in the HTML
 if (import.meta.server) await list.suspense();
@@ -46,6 +46,13 @@ const handleLoadMore = (): void => {
   else void list.fetchNextPage();
 };
 
+const handleClearControls = (): void => {
+  filter.gen.value = null;
+  filter.rarity.value = null;
+  filter.sort.value = null;
+  filter.dir.value = 'desc';
+};
+
 const handleRetry = (): void => {
   if (filter.isFiltering.value) void filter.retry();
   else void list.refetch();
@@ -71,6 +78,11 @@ const handleRetry = (): void => {
         <DexFilters
           v-model:query="filter.query.value"
           v-model:type="filter.type.value"
+          v-model:gen="filter.gen.value"
+          v-model:rarity="filter.rarity.value"
+          v-model:sort="filter.sort.value"
+          v-model:dir="filter.dir.value"
+          @clear="handleClearControls"
         />
       </div>
 
@@ -81,6 +93,7 @@ const handleRetry = (): void => {
           :is-fetching="isFetching"
           :is-error="isError"
           :type-index="typeIndex"
+          :display-names="filter.displayNames.value"
           @load-more="handleLoadMore"
           @retry="handleRetry"
         />

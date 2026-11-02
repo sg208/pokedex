@@ -3,8 +3,12 @@ import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import PokemonCard from '~/components/PokemonCard.vue';
 import { pokemonKeys } from '~/composables/queries/pokemonQueries';
+import { HOVER_INTENT_MS } from '~/composables/usePokemonPrefetch';
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
 
 const mountCard = (
   props = {}
@@ -34,6 +38,20 @@ describe('PokemonCard', () => {
     expect(img.attributes('height')).toBeTruthy();
   });
 
+  it('shows the display name when given and the slug before that', async () => {
+    const named = await mountCard({
+      id: 122,
+      name: 'mr-mime',
+      displayName: 'Mr. Mime',
+    });
+    expect(named.text()).toContain('Mr. Mime');
+    expect(named.find('img').attributes('alt')).toBe('Mr. Mime');
+    expect(named.find('a').attributes('href')).toBe('/pokemon/mr-mime');
+    const plain = await mountCard({ id: 122, name: 'mr-mime' });
+    expect(plain.text()).toContain('mr mime');
+    expect(plain.text()).not.toContain('Mr. Mime');
+  });
+
   it('takes the primary type colours and falls back to a neutral field', async () => {
     const typed = await mountCard();
     expect(typed.find('a').attributes('style')).toContain('#f7d02c');
@@ -50,27 +68,47 @@ describe('PokemonCard', () => {
     expect(oddTilt).toContain('--tilt: -5deg');
   });
 
-  it('prefetches the detail on hover and on focus', async () => {
-    const prefetch = vi
-      .spyOn(QueryClient.prototype, 'prefetchQuery')
-      .mockResolvedValue(undefined);
+  it('prefetches the detail after a short hover, and at once on focus', async () => {
+    const fetchQuery = vi
+      .spyOn(QueryClient.prototype, 'fetchQuery')
+      .mockRejectedValue(new Error('stop after the first request'));
+    vi.spyOn(QueryClient.prototype, 'prefetchQuery').mockResolvedValue(
+      undefined
+    );
     const wrapper = await mountCard();
+    vi.useFakeTimers();
 
-    await wrapper.find('a').trigger('mouseenter');
-    expect(prefetch).toHaveBeenCalledTimes(1);
-    expect(prefetch.mock.calls[0]?.[0]).toMatchObject({
+    await wrapper.find('a').trigger('pointerenter');
+    expect(fetchQuery).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(HOVER_INTENT_MS);
+    expect(fetchQuery).toHaveBeenCalledTimes(1);
+    expect(fetchQuery.mock.calls[0]?.[0]).toMatchObject({
       queryKey: pokemonKeys.detail('pikachu'),
     });
 
     await wrapper.find('a').trigger('focus');
-    expect(prefetch).toHaveBeenCalledTimes(2);
+    expect(fetchQuery).toHaveBeenCalledTimes(2);
+  });
+
+  it('skips the prefetch when the pointer only passes over', async () => {
+    const fetchQuery = vi
+      .spyOn(QueryClient.prototype, 'fetchQuery')
+      .mockRejectedValue(new Error('unused'));
+    const wrapper = await mountCard();
+    vi.useFakeTimers();
+    await wrapper.find('a').trigger('pointerenter');
+    await wrapper.find('a').trigger('pointerleave');
+    vi.advanceTimersByTime(HOVER_INTENT_MS * 2);
+    expect(fetchQuery).not.toHaveBeenCalled();
   });
 
   it('does not prefetch without interaction', async () => {
     const prefetch = vi
       .spyOn(QueryClient.prototype, 'prefetchQuery')
       .mockResolvedValue(undefined);
+    const fetchQuery = vi.spyOn(QueryClient.prototype, 'fetchQuery');
     await mountCard();
     expect(prefetch).not.toHaveBeenCalled();
+    expect(fetchQuery).not.toHaveBeenCalled();
   });
 });

@@ -23,11 +23,11 @@ afterEach(() => {
 });
 
 describe('AppHeader', () => {
-  it('has a home wordmark and a navigation landmark with links', async () => {
+  it('has a home wordmark and no navigation landmark or Index link', async () => {
     const wrapper = await mountSuspended(AppHeader);
     expect(wrapper.find('a[href="/"]').text()).toContain('Pokédex');
-    expect(wrapper.find('nav[aria-label="Main"]').exists()).toBe(true);
-    expect(wrapper.find('a[href="/#index"]').exists()).toBe(true);
+    expect(wrapper.find('nav[aria-label="Main"]').exists()).toBe(false);
+    expect(wrapper.find('a[href="/#index"]').exists()).toBe(false);
   });
 
   it('leaves the GitHub link to the footer', async () => {

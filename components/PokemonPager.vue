@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { useQueryClient } from '@tanstack/vue-query';
-import {
-  pokemonDetailQueryOptions,
-  useDexNames,
-} from '~/composables/queries/pokemonQueries';
-import { parseDexEntries } from '~/utils/dex';
+import { useDexIndex, useDexNames } from '~/composables/queries/pokemonQueries';
+import { usePokemonPrefetch } from '~/composables/usePokemonPrefetch';
+import { displayNameFor, parseDexEntries } from '~/utils/dex';
 
 interface Props {
   name: string;
@@ -12,8 +9,12 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const queryClient = useQueryClient();
+const { prefetchOn } = usePokemonPrefetch();
 const names = useDexNames(true);
+const dexIndex = useDexIndex();
+
+const nameOf = (entry: { id: number; name: string }): string =>
+  displayNameFor(dexIndex.data.value, entry.id) ?? formatName(entry.name);
 
 const entries = computed(() =>
   parseDexEntries(names.data.value?.results ?? [])
@@ -27,10 +28,6 @@ const previous = computed(() =>
 const next = computed(() =>
   position.value >= 0 ? entries.value[position.value + 1] : undefined
 );
-
-const handlePrefetch = (name: string): void => {
-  void queryClient.prefetchQuery(pokemonDetailQueryOptions(name));
-};
 </script>
 
 <template>
@@ -39,21 +36,19 @@ const handlePrefetch = (name: string): void => {
       v-if="previous"
       :to="`/pokemon/${previous.name}`"
       class="pager-link"
-      @mouseenter="handlePrefetch(previous.name)"
-      @focus="handlePrefetch(previous.name)"
+      v-on="prefetchOn(previous.name)"
     >
       <span class="font-bold">Previous {{ formatDexNumber(previous.id) }}</span>
-      <span class="display pager-name">{{ formatName(previous.name) }}</span>
+      <span class="display pager-name">{{ nameOf(previous) }}</span>
     </NuxtLink>
     <NuxtLink
       v-if="next"
       :to="`/pokemon/${next.name}`"
       class="pager-link pager-next"
-      @mouseenter="handlePrefetch(next.name)"
-      @focus="handlePrefetch(next.name)"
+      v-on="prefetchOn(next.name)"
     >
       <span class="font-bold">Next {{ formatDexNumber(next.id) }}</span>
-      <span class="display pager-name">{{ formatName(next.name) }}</span>
+      <span class="display pager-name">{{ nameOf(next) }}</span>
     </NuxtLink>
   </nav>
 </template>

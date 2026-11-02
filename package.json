@@ -1,6 +1,6 @@
 {
   "name": "pokedex",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -22,10 +22,10 @@
     "test": "vitest run",
     "test:e2e": "pnpm build && playwright test",
     "build": "nuxt generate",
-    "deploy": "pnpm generate && wrangler deploy"
+    "deploy": "pnpm generate && wrangler deploy",
+    "data:refresh": "node --experimental-strip-types scripts/build-dex-index.ts"
   },
   "dependencies": {
-    "@nuxt/eslint": "^1.10.0",
     "@nuxt/icon": "^2.1.0",
     "@nuxt/ui": "^4.1.0",
     "@tanstack/vue-query": "^5.59.0",
@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@fontsource-variable/tiktok-sans": "^5.3.0",
+    "@nuxt/eslint": "^1.10.0",
     "@nuxt/test-utils": "^4.3.4",
     "@playwright/test": "^1.64.1",
     "@types/node": "^24.10.0",

@@ -12,12 +12,5 @@ const linkClass =
     :style="{ '--header-bg': bg, '--header-ink': ink }"
   >
     <NuxtLink to="/" :class="[linkClass, 'font-extrabold']">Pokédex</NuxtLink>
-    <nav aria-label="Main">
-      <ul class="flex gap-6">
-        <li>
-          <NuxtLink to="/#index" :class="linkClass">Index</NuxtLink>
-        </li>
-      </ul>
-    </nav>
   </header>
 </template>
