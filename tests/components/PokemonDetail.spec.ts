@@ -11,7 +11,11 @@ mockNuxtImport('$fetch', () => fetchMock);
 mockNuxtImport('showError', () => showErrorMock);
 
 const API = 'https://pokeapi.co/api/v2';
-const named = (name: string, id: number, kind = 'pokemon-species') => ({
+const named = (
+  name: string,
+  id: number,
+  kind = 'pokemon-species'
+): { name: string; url: string } => ({
   name,
   url: `${API}/${kind}/${id}/`,
 });
@@ -69,7 +73,7 @@ const dexNames = Array.from({ length: 1025 }, (_, index) =>
   index === 24 ? 'pikachu' : `mon-${index + 1}`
 );
 
-const mountDetail = () =>
+const mountDetail = (): ReturnType<typeof mountSuspended<typeof DetailPage>> =>
   mountSuspended(DetailPage, { route: '/pokemon/pikachu' });
 
 afterEach(() => {

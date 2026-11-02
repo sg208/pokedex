@@ -3,7 +3,7 @@ import withNuxt from './.nuxt/eslint.config.mjs';
 export default withNuxt({
   rules: {
     '@typescript-eslint/no-explicit-any': 'error',
-    '@typescript-eslint/explicit-function-return-type': 'warn',
+    '@typescript-eslint/explicit-function-return-type': 'error',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'vue/multi-word-component-names': [
       'error',

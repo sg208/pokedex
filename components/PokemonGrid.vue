@@ -57,8 +57,8 @@ const buttonClass =
     >
       <PokemonCard
         v-for="(item, index) in items"
-        :key="item.id"
         :id="item.id"
+        :key="item.id"
         :name="item.name"
         :index="index"
         :type-name="typeIndex.get(item.id)"

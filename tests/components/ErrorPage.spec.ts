@@ -2,7 +2,8 @@ import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { describe, it, expect } from 'vitest';
 import ErrorPage from '~/error.vue';
 
-const makeError = (statusCode: number) => createError({ statusCode });
+const makeError = (statusCode: number): ReturnType<typeof createError> =>
+  createError({ statusCode });
 
 describe('error page', () => {
   it('says the page was not found for a 404 and links home', async () => {

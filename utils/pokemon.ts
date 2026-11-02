@@ -78,8 +78,13 @@ export const buildDetailRoutes = (names: string[]): string[] => {
   });
 };
 
-// Pulls the 1025 names out of a /pokemon?limit=1025 response
-export const extractDexNames = (response: unknown): string[] => {
+export interface DexNameEntry {
+  name: string;
+  id: number;
+}
+
+// Pulls the 1025 names and ids out of a /pokemon?limit=1025 response
+export const extractDexEntries = (response: unknown): DexNameEntry[] => {
   const results = (response as { results?: { name: string; url: string }[] })
     ?.results;
   if (!Array.isArray(results) || results.length !== DEX_MAX) {
@@ -89,7 +94,72 @@ export const extractDexNames = (response: unknown): string[] => {
   if (!last || parseIdFromUrl(last.url) !== DEX_MAX) {
     throw new Error(`Expected the last Pokémon to have id ${DEX_MAX}`);
   }
-  return results.map((entry) => entry.name);
+  return results.map((entry): DexNameEntry => ({
+    name: entry.name,
+    id: parseIdFromUrl(entry.url),
+  }));
+};
+
+export const DEX_SITE_URL = 'https://pokedex.engg.app';
+
+const toTitleCase = (name: string): string =>
+  formatName(name)
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+
+export type HeadMeta =
+  { name: string; content: string } | { property: string; content: string };
+
+export interface DetailHead {
+  title: string;
+  meta: HeadMeta[];
+}
+
+// Per-Pokémon head: only the name and dex number are known without extra API calls
+export const buildDetailHead = (name: string, id: number): DetailHead => {
+  const display = toTitleCase(name);
+  const title = `${display} ${formatDexNumber(id)} - Pokédex`;
+  const description = `${display}, Pokédex ${formatDexNumber(id)}.`;
+  return {
+    title,
+    meta: [
+      { name: 'description', content: description },
+      { property: 'og:title', content: title },
+      { property: 'og:description', content: description },
+      { property: 'og:image', content: artworkUrl(id) },
+      { property: 'og:url', content: `${DEX_SITE_URL}/pokemon/${name}` },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:site_name', content: 'Pokédex' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+    ],
+  };
+};
+
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+
+// Writes the head into a prerendered shell: swaps the <title>, adds the meta tags
+export const injectHeadTags = (html: string, head: DetailHead): string => {
+  if (!html.includes('</head>')) throw new Error('No </head> in the HTML');
+  const tags = head.meta
+    .map((tag) => {
+      const key =
+        'property' in tag
+          ? `property="${escapeHtml(tag.property)}"`
+          : `name="${escapeHtml(tag.name)}"`;
+      return `<meta ${key} content="${escapeHtml(tag.content)}">`;
+    })
+    .join('');
+  const title = `<title>${escapeHtml(head.title)}</title>`;
+  const withTitle = /<title>[\s\S]*?<\/title>/.test(html)
+    ? html.replace(/<title>[\s\S]*?<\/title>/, () => title)
+    : html.replace('</head>', () => `${title}</head>`);
+  return withTitle.replace('</head>', () => `${tags}</head>`);
 };
 
 // Letters that must fit on one line when the name is set in two lines at most

@@ -20,6 +20,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,vue,json,css,md}\"",
     "type-check": "vue-tsc --noEmit",
     "test": "vitest run",
+    "test:e2e": "pnpm build && playwright test",
     "build": "nuxt generate",
     "deploy": "pnpm generate && wrangler deploy"
   },
@@ -35,6 +36,7 @@
   "devDependencies": {
     "@fontsource-variable/tiktok-sans": "^5.3.0",
     "@nuxt/test-utils": "^4.3.4",
+    "@playwright/test": "^1.64.1",
     "@types/node": "^24.10.0",
     "@vue/test-utils": "^2.4.6",
     "eslint": "^10.14.0",

@@ -16,7 +16,9 @@ afterEach(() => {
   fetchMock.mockReset();
 });
 
-const mountPager = async (name: string) => {
+const mountPager = async (
+  name: string
+): ReturnType<typeof mountSuspended<typeof PokemonPager>> => {
   fetchMock.mockResolvedValue({
     count: 1025,
     next: null,

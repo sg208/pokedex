@@ -17,8 +17,8 @@ const stages = computed(() =>
 
 // Unknown names, and forms outside the national dex, are a real 404
 watch(
-  [() => pokemon.error.value, data],
-  ([error, detail]) => {
+  [(): unknown => pokemon.error.value, data],
+  ([error, detail]): void => {
     const isOutsideDex = !!detail && detail.id > DEX_MAX;
     if (getErrorStatus(error) === 404 || isOutsideDex) {
       showError(
@@ -29,12 +29,11 @@ watch(
   { immediate: true }
 );
 
-useHead({
-  title: () =>
-    data.value
-      ? `${formatName(data.value.name)} ${formatDexNumber(data.value.id)} - Pokédex`
-      : 'Pokédex',
-});
+useHead((): DetailHead =>
+  data.value
+    ? buildDetailHead(data.value.name, data.value.id)
+    : { title: 'Pokédex', meta: [] }
+);
 </script>
 
 <template>

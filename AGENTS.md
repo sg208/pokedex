@@ -12,7 +12,8 @@ Verified with pnpm 10 and Node 24 (`package.json` scripts).
 pnpm install       # postinstall runs `nuxt prepare`
 pnpm dev           # Nuxt dev server
 pnpm test          # vitest run (Nuxt environment, happy-dom)
-pnpm lint          # eslint . (warnings only for missing return types)
+pnpm test:e2e      # builds, serves .output/public on 4311, Playwright chromium (first time: `pnpm exec playwright install chromium`)
+pnpm lint          # eslint . (explicit return types are errors)
 pnpm type-check    # vue-tsc --noEmit
 pnpm build         # nuxt generate -> .output/public (needs network: one PokeAPI names request)
 pnpm preview       # serve the generated output
@@ -40,7 +41,7 @@ pnpm run deploy    # pnpm generate && wrangler deploy (from main only)
 | data layer       | `composables/queries/pokemonQueries.ts` (keys, typed fetchers, composables) · `useTypeIndex.ts` (18 `/type` lists -> id to primary type) · `composables/useDexFilter.ts` |
 | pure helpers     | `utils/{pokemon,dex,evolution,typeStyles}.ts` · types in `types/pokemon.ts`                     |
 | query client     | `plugins/vue-query.ts` — staleTime/gcTime 24h, retry 2, no refetch on focus                     |
-| route generation | `modules/dex-routes.ts` — during `nuxt generate` only, one `GET /pokemon?limit=1025`, adds `/pokemon/<name>` shells to prerender; `routeRules['/pokemon/**'] = { ssr: false }` |
+| route generation | `modules/dex-routes.ts` — during `nuxt generate` only, one `GET /pokemon?limit=1025`, adds `/pokemon/<name>` shells to prerender and injects per-Pokémon title/description/OG/Twitter tags into each shell via Nitro `prerender:generate`; `routeRules['/pokemon/**'] = { ssr: false }` |
 | styling          | `assets/css/main.css` — tokens, display type, footer, reveal and reduced-motion; font `@fontsource-variable/tiktok-sans/wdth.css` (self-hosted) |
 | data source      | PokeAPI, no API key; official artwork from raw.githubusercontent.com                            |
 | design direction | `.taste-skill/direction.json` `direction.id` = `loud-flat-poster` (tracked)                    |
@@ -54,9 +55,9 @@ pnpm run deploy    # pnpm generate && wrangler deploy (from main only)
 | field       | value                                                                        |
 | ----------- | ---------------------------------------------------------------------------- |
 | runner      | Vitest 5 + @nuxt/test-utils, `environment: 'nuxt'`, happy-dom (`vitest.config.ts`) |
-| command     | `pnpm test` (all), `pnpm vitest run tests/unit/pokemon.spec.ts` (one file)   |
+| command     | `pnpm test` (all), `pnpm test:e2e` (e2e), `pnpm vitest run tests/unit/pokemon.spec.ts` (one file)   |
 | conventions | `tests/unit/*.spec.ts` pure helpers and query layer · `tests/components/*.spec.ts` via `mountSuspended`; `$fetch` mocked with `mockNuxtImport('$fetch')` (a global stub does not work: Nuxt captures it at import); IntersectionObserver faked per test |
-| levels      | unit ✓ · component ✓ · e2e ✗ (visual and keyboard QA is manual)              |
+| levels      | unit ✓ · component ✓ · e2e ✓ (Playwright, tests/e2e/*.e2e.ts, real PokeAPI)              |
 | enforced_by | local only (no CI; `.github/` absent)                                        |
 
 ## Project

@@ -93,7 +93,8 @@ describe('parseDexEntries', () => {
 
 describe('buildPrimaryTypeIndex', () => {
   it('maps ids to their slot 1 type only, capped at 1025', () => {
-    const url = (id: number) => `https://pokeapi.co/api/v2/pokemon/${id}/`;
+    const url = (id: number): string =>
+      `https://pokeapi.co/api/v2/pokemon/${id}/`;
     const index = buildPrimaryTypeIndex([
       {
         name: 'grass',

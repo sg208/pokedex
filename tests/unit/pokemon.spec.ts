@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   DEX_MAX,
   artworkUrl,
+  buildDetailHead,
+  injectHeadTags,
   cleanFlavorText,
   formatDexNumber,
   formatHeight,
@@ -98,5 +100,58 @@ describe('nameFitLength', () => {
     expect(nameFitLength('great-tusk')).toBe(5);
     expect(nameFitLength('oricorio-pom-pom')).toBe(8);
     expect(nameFitLength('crabominable')).toBe(12);
+  });
+});
+
+describe('buildDetailHead', () => {
+  it('builds a title-cased title and the full meta set', () => {
+    const head = buildDetailHead('mr-mime', 122);
+    expect(head.title).toBe('Mr Mime #0122 - Pokédex');
+    const byKey = Object.fromEntries(
+      head.meta.map((tag) => [
+        'property' in tag ? tag.property : tag.name,
+        tag.content,
+      ])
+    );
+    expect(byKey['description']).toBe('Mr Mime, Pokédex #0122.');
+    expect(byKey['og:title']).toBe('Mr Mime #0122 - Pokédex');
+    expect(byKey['og:description']).toBe('Mr Mime, Pokédex #0122.');
+    expect(byKey['og:image']).toBe(artworkUrl(122));
+    expect(byKey['og:url']).toBe('https://pokedex.engg.app/pokemon/mr-mime');
+    expect(byKey['og:type']).toBe('website');
+    expect(byKey['og:site_name']).toBe('Pokédex');
+    expect(byKey['twitter:card']).toBe('summary_large_image');
+  });
+});
+
+describe('injectHeadTags', () => {
+  const head = buildDetailHead('pikachu', 25);
+  const html =
+    '<html><head><title>Pokédex</title><meta charset="utf-8"></head><body></body></html>';
+
+  it('replaces the title and inserts meta before </head>', () => {
+    const out = injectHeadTags(html, head);
+    expect(out).toContain('<title>Pikachu #0025 - Pokédex</title>');
+    expect(out.match(/<title>/g)).toHaveLength(1);
+    expect(out).toContain(
+      '<meta property="og:title" content="Pikachu #0025 - Pokédex">'
+    );
+    expect(out).toContain(
+      '<meta name="twitter:card" content="summary_large_image">'
+    );
+    expect(out.indexOf('og:title')).toBeLessThan(out.indexOf('</head>'));
+  });
+
+  it('escapes & < > " in values', () => {
+    const out = injectHeadTags(html, {
+      title: 'A & <B>',
+      meta: [{ name: 'description', content: 'say "hi"' }],
+    });
+    expect(out).toContain('<title>A &amp; &lt;B&gt;</title>');
+    expect(out).toContain('content="say &quot;hi&quot;"');
+  });
+
+  it('throws when there is no </head>', () => {
+    expect(() => injectHeadTags('<html></html>', head)).toThrow();
   });
 });

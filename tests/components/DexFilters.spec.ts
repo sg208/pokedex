@@ -6,7 +6,9 @@ import DexFilters from '~/components/DexFilters.vue';
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
 
-const mountFilters = (props = {}) =>
+const mountFilters = (
+  props = {}
+): ReturnType<typeof mountSuspended<typeof DexFilters>> =>
   mountSuspended(DexFilters, { props: { query: '', type: null, ...props } });
 
 describe('DexFilters', () => {

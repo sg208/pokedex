@@ -1,4 +1,10 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/vue-query';
+import {
+  type InfiniteData,
+  type UseInfiniteQueryReturnType,
+  type UseQueryReturnType,
+  useInfiniteQuery,
+  useQuery,
+} from '@tanstack/vue-query';
 import type { MaybeRefOrGetter } from 'vue';
 import type {
   EvolutionChainResponse,
@@ -10,6 +16,23 @@ import type {
 } from '~/types/pokemon';
 import { getNextOffset, PAGE_SIZE } from '~/utils/dex';
 import { DEX_MAX, getErrorStatus, parseIdFromUrl } from '~/utils/pokemon';
+
+interface DetailQueryOptions {
+  queryKey: ReturnType<typeof pokemonKeys.detail>;
+  queryFn: () => Promise<PokemonDetail>;
+}
+
+interface DexNamesQueryOptions {
+  queryKey: ReturnType<typeof pokemonKeys.names>;
+  queryFn: () => Promise<PokemonListResponse>;
+  staleTime: number;
+}
+
+interface PokemonDetailQueries {
+  pokemon: UseQueryReturnType<PokemonDetail, Error>;
+  species: UseQueryReturnType<PokemonSpecies, Error>;
+  chain: UseQueryReturnType<EvolutionChainResponse, Error>;
+}
 
 const API = 'https://pokeapi.co/api/v2';
 
@@ -83,19 +106,26 @@ export const fetchChain = async (
   return data;
 };
 
-export const pokemonDetailQueryOptions = (name: string) => ({
+export const pokemonDetailQueryOptions = (
+  name: string
+): DetailQueryOptions => ({
   queryKey: pokemonKeys.detail(name),
-  queryFn: () => fetchPokemon(name),
+  queryFn: (): Promise<PokemonDetail> => fetchPokemon(name),
 });
 
 // The full name list is static for a session, so it never goes stale
-export const dexNamesQueryOptions = () => ({
+export const dexNamesQueryOptions = (): DexNamesQueryOptions => ({
   queryKey: pokemonKeys.names(),
   queryFn: fetchDexNames,
   staleTime: Infinity,
 });
 
-export const usePokemonInfiniteList = (limit: number = PAGE_SIZE) =>
+export const usePokemonInfiniteList = (
+  limit: number = PAGE_SIZE
+): UseInfiniteQueryReturnType<
+  InfiniteData<PokemonListResponse, PageParam>,
+  Error
+> =>
   useInfiniteQuery({
     queryKey: pokemonKeys.list(limit),
     queryFn: ({ pageParam }) => fetchPokemonPage(pageParam),
@@ -105,15 +135,19 @@ export const usePokemonInfiniteList = (limit: number = PAGE_SIZE) =>
   });
 
 // Enabled lazily: only when search or a type filter needs all 1025 names
-export const useDexNames = (isEnabled: MaybeRefOrGetter<boolean>) =>
+export const useDexNames = (
+  isEnabled: MaybeRefOrGetter<boolean>
+): UseQueryReturnType<PokemonListResponse, Error> =>
   useQuery({ ...dexNamesQueryOptions(), enabled: isEnabled });
 
-export const usePokemonDetail = (name: MaybeRefOrGetter<string>) => {
+export const usePokemonDetail = (
+  name: MaybeRefOrGetter<string>
+): PokemonDetailQueries => {
   const pokemon = useQuery({
     queryKey: computed(() => pokemonKeys.detail(toValue(name))),
     queryFn: () => fetchPokemon(toValue(name)),
     // An unknown name is final: do not retry a 404
-    retry: (failureCount: number, error: unknown) =>
+    retry: (failureCount: number, error: Error) =>
       getErrorStatus(error) !== 404 && failureCount < 2,
   });
   const speciesId = computed(() => pokemon.data.value?.id);

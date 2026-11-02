@@ -24,7 +24,9 @@ const items = [
   { id: 4, name: 'charmander' },
 ];
 
-const mountGrid = (props = {}) =>
+const mountGrid = (
+  props = {}
+): ReturnType<typeof mountSuspended<typeof PokemonGrid>> =>
   mountSuspended(PokemonGrid, {
     props: {
       items,

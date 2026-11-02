@@ -10,3 +10,10 @@
 - Fix: serve the build (`npx serve@14.2.4 .output/public -l 4310`) and run `inspect.mjs http://localhost:4310/`
 - Rule: run taste-skill `inspect.mjs` against a served build URL, NEVER the generated `index.html` path · enforced_by: unverified
 - Source: `.taste-skill/inspect/report.json` (first run, typefaces Times 89%)
+
+## 2026-11-02 — nuxt-auto-import-name-collision
+- Mistake: a util named `injectHead` in `utils/pokemon.ts` collided with a Nuxt built-in auto-import (NUXT_B6002)
+- Root cause: every export in `utils/` and `composables/` is auto-imported globally; names shared with Nuxt/unhead built-ins clash
+- Fix: renamed to `injectHeadTags`
+- Rule: check a new `utils/` or `composables/` export name against Nuxt built-in auto-imports (`.nuxt/imports.d.ts`) before naming it · enforced_by: `pnpm build` warning
+- Source: group C implementer, OG meta ship

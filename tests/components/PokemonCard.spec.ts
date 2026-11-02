@@ -6,7 +6,9 @@ import { pokemonKeys } from '~/composables/queries/pokemonQueries';
 
 afterEach(() => vi.restoreAllMocks());
 
-const mountCard = (props = {}) =>
+const mountCard = (
+  props = {}
+): ReturnType<typeof mountSuspended<typeof PokemonCard>> =>
   mountSuspended(PokemonCard, {
     props: {
       id: 25,
