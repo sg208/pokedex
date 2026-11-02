@@ -22,7 +22,7 @@ defineProps<Props>();
         </span>
         <img
           :src="artworkUrl(form.id)"
-          :alt="form.label"
+          alt=""
           width="475"
           height="475"
           loading="lazy"

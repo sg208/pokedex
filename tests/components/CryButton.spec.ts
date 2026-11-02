@@ -38,7 +38,7 @@ describe('CryButton', () => {
     expect(audioCtor).not.toHaveBeenCalled();
     expect(wrapper.find('audio').exists()).toBe(false);
     expect(wrapper.find('button').attributes('aria-label')).toBe(
-      'Play the cry of pikachu'
+      'Cry of pikachu'
     );
 
     await wrapper.find('button').trigger('click');

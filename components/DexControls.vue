@@ -42,6 +42,11 @@ const handleSort = (event: Event): void => {
   const value = valueOf(event);
   emit('update:sort', isSortKey(value) ? value : null);
 };
+// Clear unmounts itself; hand focus to the first control so it is not lost
+const handleClear = (): void => {
+  emit('clear');
+  void nextTick(() => document.getElementById(genId)?.focus());
+};
 const handleDir = (event: Event): void => {
   emit('update:dir', valueOf(event) === 'asc' ? 'asc' : 'desc');
 };
@@ -82,7 +87,7 @@ const handleDir = (event: Event): void => {
         <option value="asc">Low to high</option>
       </select>
     </div>
-    <button v-if="isActive" type="button" class="clear" @click="emit('clear')">
+    <button v-if="isActive" type="button" class="clear" @click="handleClear">
       Clear
     </button>
   </div>

@@ -31,13 +31,13 @@ const handlePlay = async (): Promise<void> => {
     <button
       type="button"
       class="cry-button"
-      :aria-label="`Play the cry of ${formatName(name)}`"
+      :aria-label="`Cry of ${formatName(name)}`"
       @click="handlePlay"
     >
       Cry
     </button>
-    <p v-if="hasFailed" role="status" class="mt-2 text-small">
-      The cry could not play.
+    <p role="status" class="mt-2 text-small">
+      {{ hasFailed ? 'The cry could not play.' : '' }}
     </p>
   </div>
 </template>

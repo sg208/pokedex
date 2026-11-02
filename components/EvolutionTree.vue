@@ -115,6 +115,10 @@ const method = computed(() =>
   outline: 0.25rem solid var(--ink);
   outline-offset: -0.25rem;
 }
+.stage[aria-current='page']:focus-visible {
+  outline: 4px solid var(--focus);
+  outline-offset: 3px;
+}
 .stage-art {
   width: min(100%, 9rem);
   height: auto;
