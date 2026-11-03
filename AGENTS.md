@@ -81,6 +81,7 @@ pnpm run deploy    # pnpm generate && wrangler deploy (from main only)
 - Design rules (taste-skill, enforced by grep in the plan): square corners, no shadows, borders, gradients, blur, monospace or emoji; one typeface; one h1 per page.
 - `main` — remote-only locally (`git branch -a`); `git fetch origin` before any `main` work
 - `README.md` — human-owned; enggflo does not restyle it
+- `.backlog/` — the commit that meets an item's `## Done when` sets `Status: done` + `## Resolution`; unmet rows → new item (`.enggflo/learning.md` close-backlog-on-ship) <!-- enggflo -->
 - taste-skill `inspect.mjs` — run against a served build (`npx serve@14.2.4 .output/public -l 4310` → `http://localhost:4310/`), NEVER the `index.html` path: root-absolute `/_nuxt/` URLs do not resolve (`.enggflo/learning.md` taste-inspect-served-build) <!-- enggflo -->
 
 ## References <!-- enggflo -->
