@@ -99,9 +99,15 @@ const genus = computed(() => pickGenus(props.species?.genera ?? []));
 .detail-name {
   container-type: inline-size;
 }
-/* Fit the longest line: 0.9em per letter at the widest setting, two lines max */
+/*
+ * Fit the longest line, two lines max. --em-per-letter is measured, not guessed:
+ * across all 1025 names at wdth 150 / weight 800 the widest cases that the
+ * 22cqi cap does not already save need 1.09em per letter (Mewtwo, Wormadam
+ * Plant, Kommo-o, Pawmo); 1.15 adds about 5% headroom.
+ */
 .detail-title {
-  font-size: min(22cqi, calc(92cqi / (var(--fit) * 0.9)));
+  --em-per-letter: 1.15;
+  font-size: min(22cqi, calc(92cqi / (var(--fit) * var(--em-per-letter))));
   overflow-wrap: anywhere;
 }
 .detail-viewer {
