@@ -1,7 +1,7 @@
 # AGENTS.md
 
 - PROJECT: pokedex — bold Pokédex browsing PokeAPI, Nuxt 4 + Nuxt UI + TanStack Vue Query (`README.md:3`)
-- STATUS: v0.2.0 live at https://pokedex.engg.app (Worker version `72a42b6a`, deployed from `main` 845831d on 2026-11-02)
+- STATUS: v0.3.0 live at https://pokedex.engg.app (Worker version `3d8c8524`, deployed from `main` aac5aed on 2026-11-03)
 - LEARNINGS: `.enggflo/learning.md` · DECISIONS: `.enggflo/brain.md`
 
 ## Commands
