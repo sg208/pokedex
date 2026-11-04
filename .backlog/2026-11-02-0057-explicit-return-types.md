@@ -3,7 +3,7 @@
 - **Date**: 2026-11-02 00:57
 - **Type**: chore
 - **Effort**: medium
-- **Status**: ready
+- **Status**: done
 - **Source**: review finding
 
 ## Goal
@@ -42,3 +42,8 @@
 
 ## Also spotted
 - `composables/queries/useRecipesQuery.ts` — sibling repo `reeeecipe`, not this repo; out of scope here.
+
+## Resolution
+
+- **Closed**: 2026-11-03 (verified by /enggflo-ship)
+- `eslint.config.mjs:6` sets `explicit-function-return-type: error` repo-wide (stricter than the planned warn + override); `pnpm lint --max-warnings 0` run in this pass

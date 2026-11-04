@@ -3,7 +3,7 @@
 - **Date**: 2026-11-02 00:56
 - **Type**: task
 - **Effort**: medium
-- **Status**: ready
+- **Status**: done
 - **Source**: request
 
 ## Goal
@@ -52,3 +52,9 @@ WHY (a): zero per-Pokémon calls and no new runtime, so it fits the one-names-re
 
 ## Also spotted
 - `nuxt.config.ts:51` — `/`, `/privacy`, `/terms`, `/accessibility` also have no description or OG tags; own item if wanted.
+
+## Resolution
+
+- **Closed**: 2026-11-03 (verified by /enggflo-ship)
+- `buildDetailHead` at `utils/pokemon.ts:121`, used by `pages/pokemon/[name].vue:51` and `modules/dex-routes.ts:46` (injected via `prerender:generate`, `modules/dex-routes.ts:36`)
+- `modules/dex-routes.ts:22` = the single names `fetch(`

@@ -3,7 +3,7 @@
 - **Date**: 2026-11-02 00:56
 - **Type**: task
 - **Effort**: medium
-- **Status**: open
+- **Status**: done
 - **Source**: request
 
 ## Goal
@@ -54,3 +54,10 @@
 
 ## Also spotted
 - `components/PokemonGrid.vue:25` — `handleLoadMore` guard drops emits while `isError`; retry button (`components/PokemonGrid.vue:42`) has no browser-level coverage. Not in scope.
+
+## Resolution
+
+- **Closed**: 2026-11-03 (verified by /enggflo-ship)
+- Shipped under `tests/e2e/*.e2e.ts` (not `e2e/*.spec.ts`): `home-grid`, `home-filters`, `detail` + 6 more; webServer `npx serve@14.2.4 .output/public -l 4311` (`playwright.config.ts:16`); `.gitignore` has both report dirs
+- `tests/e2e/detail.e2e.ts` asserts 404 · `home-filters` covers Enter + aria-pressed · `home-grid` covers Load more + scroll
+- `pnpm test:e2e` run in this pass (see ship report)

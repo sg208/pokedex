@@ -1,7 +1,7 @@
 # AGENTS.md
 
 - PROJECT: pokedex — bold Pokédex browsing PokeAPI, Nuxt 4 + Nuxt UI + TanStack Vue Query (`README.md:3`)
-- STATUS: v0.2.0 live at https://pokedex.engg.app (Worker version `72a42b6a`, deployed from `main` 845831d on 2026-11-02)
+- STATUS: v0.3.0 live at https://pokedex.engg.app (Worker version `3d8c8524`, deployed from `main` aac5aed on 2026-11-03)
 - LEARNINGS: `.enggflo/learning.md` · DECISIONS: `.enggflo/brain.md`
 
 ## Commands
@@ -74,12 +74,14 @@ pnpm run deploy    # pnpm generate && wrangler deploy (from main only)
 - Detail pages are prerendered as empty shells (`ssr: false`) and fetch in the browser. Unknown names have no shell, so Cloudflare serves a real 404 (`tests/e2e/detail.e2e.ts`); a known shell whose fetch 404s (or an invalid slug inside the app) calls `showError` 404 client-side; `not_found_handling` stays `"404-page"`. Rejected: Cloudflare `single-page-application` fallback (always 200, hydration mismatch, no real 404s) and prerendering data for 1025 pages (about 3000 PokeAPI calls per build).
 - `public/_headers` (Workers static assets): HSTS 1y without includeSubDomains, nosniff, Referrer-Policy, X-Frame-Options DENY, Permissions-Policy, CSP **Report-Only**, immutable cache on `/_nuxt/*`; verified on `wrangler dev` incl. 404s; Always-Use-HTTPS / min TLS / DNSSEC / CAA / SPF-DMARC are zone settings, not in repo <!-- enggflo -->
 - Scoped styles: never `:global(.a) .b` — Vue emits a bare global `.a` (`tests/unit/scopedStyles.spec.ts`) <!-- enggflo -->
+- Detail title size = `min(22cqi, 92cqi / (--fit × --em-per-letter))` in `components/DetailHero.vue`; `--em-per-letter: 1.15` is measured over all 1025 names in the wdth-150 display face (worst: Mewtwo 1.095). Change it only with a re-measure; `tests/e2e/detail-title.e2e.ts` fails on any mid-word break. <!-- enggflo -->
 - `nuxt generate` needs network for one PokeAPI request (`modules/dex-routes.ts` asserts 1025 names and last id 1025, else the build fails).
 - `ui.colorMode` is `false` on purpose: the colour-mode module writes localStorage, and the privacy page promises no storage.
 - `useTypeIndex` is client-only (18 `/type` requests, cached forever); cards are neutral until it loads.
 - Design rules (taste-skill, enforced by grep in the plan): square corners, no shadows, borders, gradients, blur, monospace or emoji; one typeface; one h1 per page.
 - `main` — remote-only locally (`git branch -a`); `git fetch origin` before any `main` work
 - `README.md` — human-owned; enggflo does not restyle it
+- `.backlog/` — the commit that meets an item's `## Done when` sets `Status: done` + `## Resolution`; unmet rows → new item (`.enggflo/learning.md` close-backlog-on-ship) <!-- enggflo -->
 - taste-skill `inspect.mjs` — run against a served build (`npx serve@14.2.4 .output/public -l 4310` → `http://localhost:4310/`), NEVER the `index.html` path: root-absolute `/_nuxt/` URLs do not resolve (`.enggflo/learning.md` taste-inspect-served-build) <!-- enggflo -->
 
 ## References <!-- enggflo -->
