@@ -12,7 +12,6 @@ import {
   nameFitLength,
   parseIdFromUrl,
   pickGenus,
-  pickFlavorText,
   statLabel,
   statPercent,
 } from '~/utils/pokemon';
@@ -85,18 +84,12 @@ describe('pokemon helpers', () => {
     expect(cleanFlavorText('plain tablets')).toBe('plain tablets');
   });
 
-  it('picks English flavor text and genus', () => {
-    const flavors = [
-      { flavor_text: 'ほげ', language: { name: 'ja' } },
-      { flavor_text: 'Electric\fmouse.', language: { name: 'en' } },
-    ];
+  it('picks the English genus', () => {
     const genera = [
       { genus: 'ねずみ', language: { name: 'ja' } },
       { genus: 'Mouse Pokémon', language: { name: 'en' } },
     ];
-    expect(pickFlavorText(flavors)).toBe('Electric mouse.');
     expect(pickGenus(genera)).toBe('Mouse Pokémon');
-    expect(pickFlavorText([])).toBe('');
     expect(pickGenus([])).toBe('');
   });
 });

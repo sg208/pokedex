@@ -4,7 +4,7 @@ import type {
   PageParam,
   TypeResponse,
 } from '~/types/pokemon';
-import { DEX_MAX, parseIdFromUrl } from '~/utils/pokemon';
+import { DEX_MAX, formatName, parseIdFromUrl } from '~/utils/pokemon';
 
 export const PAGE_SIZE = 24;
 
@@ -48,6 +48,12 @@ export const displayNameFor = (
   const entry = index?.pokemon[id - 1];
   return entry?.id === id ? entry.displayName : undefined;
 };
+
+export const pokemonLabel = (
+  index: { pokemon: { id: number; displayName: string }[] } | undefined,
+  id: number,
+  slug: string
+): string => displayNameFor(index, id) ?? formatName(slug);
 
 export const filterDex = (
   entries: DexEntry[],

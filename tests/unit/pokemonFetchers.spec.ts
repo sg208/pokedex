@@ -1,8 +1,6 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
-  dexNamesQueryOptions,
-  abilityQueryOptions,
   fetchAbility,
   fetchChain,
   fetchDexIndex,
@@ -11,6 +9,10 @@ import {
   fetchPokemonPage,
   fetchSpecies,
   fetchType,
+} from '~/composables/queries/pokemonFetchers';
+import {
+  abilityQueryOptions,
+  dexNamesQueryOptions,
   pokemonKeys,
 } from '~/composables/queries/pokemonQueries';
 

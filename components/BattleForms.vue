@@ -35,10 +35,7 @@ defineProps<Props>();
             v-for="type in form.types"
             :key="type"
             class="form-type"
-            :style="{
-              backgroundColor: getTypeStyle(type).bg,
-              color: getTypeStyle(type).ink,
-            }"
+            :style="typeChipStyle(type)"
           >
             {{ type }}
           </li>

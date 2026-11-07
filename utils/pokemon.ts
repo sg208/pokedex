@@ -48,20 +48,10 @@ export const cleanFlavorText = (text: string): string =>
     .replace(/\s+/g, ' ')
     .trim();
 
-interface FlavorEntry {
-  flavor_text: string;
-  language: { name: string };
-}
-
 interface GenusEntry {
   genus: string;
   language: { name: string };
 }
-
-export const pickFlavorText = (entries: FlavorEntry[]): string => {
-  const entry = entries.find((item) => item.language.name === 'en');
-  return entry ? cleanFlavorText(entry.flavor_text) : '';
-};
 
 export const pickGenus = (entries: GenusEntry[]): string =>
   entries.find((item) => item.language.name === 'en')?.genus ?? '';

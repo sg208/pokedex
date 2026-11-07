@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useDexIndex, useDexNames } from '~/composables/queries/pokemonQueries';
 import { usePokemonPrefetch } from '~/composables/usePokemonPrefetch';
-import { displayNameFor, parseDexEntries } from '~/utils/dex';
+import { parseDexEntries, pokemonLabel } from '~/utils/dex';
 
 interface Props {
   name: string;
@@ -14,7 +14,7 @@ const names = useDexNames(true);
 const dexIndex = useDexIndex();
 
 const nameOf = (entry: { id: number; name: string }): string =>
-  displayNameFor(dexIndex.data.value, entry.id) ?? formatName(entry.name);
+  pokemonLabel(dexIndex.data.value, entry.id, entry.name);
 
 const entries = computed(() =>
   parseDexEntries(names.data.value?.results ?? [])

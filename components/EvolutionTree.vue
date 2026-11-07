@@ -28,8 +28,7 @@ const routeName = computed(() =>
 );
 const label = computed(() =>
   props.tree
-    ? (displayNameFor(dexIndex.data.value, props.tree.id) ??
-      formatName(props.tree.name))
+    ? pokemonLabel(dexIndex.data.value, props.tree.id, props.tree.name)
     : ''
 );
 const method = computed(() =>

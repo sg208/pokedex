@@ -27,10 +27,7 @@ const buckets = computed(() =>
           v-for="type in bucket.types"
           :key="type"
           class="chip"
-          :style="{
-            backgroundColor: getTypeStyle(type).bg,
-            color: getTypeStyle(type).ink,
-          }"
+          :style="typeChipStyle(type)"
         >
           {{ type }}
         </li>

@@ -20,13 +20,7 @@ const matchups = computed(() =>
 </script>
 
 <template>
-  <section
-    class="page-frame bg-coral py-24 md:py-32"
-    data-chapter
-    data-bg="#ed4b44"
-    data-ink="#1a1a1a"
-  >
-    <h2 v-reveal class="display section-title">Match-ups</h2>
+  <DetailSection title="Match-ups" tone="coral">
     <p v-reveal="1" class="mt-6 max-w-prose">
       Opponents that are also
       {{ target?.isFinal ? 'fully evolved' : 'yet to evolve fully' }}, with a
@@ -57,11 +51,5 @@ const matchups = computed(() =>
       Match-up data did not arrive.
     </p>
     <div v-else class="mt-10 h-64 w-full bg-surface" aria-busy="true" />
-  </section>
+  </DetailSection>
 </template>
-
-<style scoped>
-.section-title {
-  font-size: clamp(2rem, 8vw, 7rem);
-}
-</style>

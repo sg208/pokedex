@@ -41,13 +41,7 @@ defineProps<Props>();
           <th scope="row" class="move-name">
             <span class="display">{{ formatName(move.name) }}</span>
             <span class="move-meta text-small">
-              <span
-                class="move-type"
-                :style="{
-                  backgroundColor: getTypeStyle(move.type).bg,
-                  color: getTypeStyle(move.type).ink,
-                }"
-              >
+              <span class="move-type" :style="typeChipStyle(move.type)">
                 {{ move.type }}
               </span>
               <span class="move-class">{{ move.damageClass }}</span>

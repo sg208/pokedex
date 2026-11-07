@@ -388,6 +388,49 @@ describe('pokemon detail page', () => {
     expect(wrapper.find('a[href="/pokemon/mon-26"]').text()).toContain('#0026');
   });
 
+  it('renders each chapter with its ground and ink', async () => {
+    useHappyPath();
+    const wrapper = await mountDetail();
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Next up'));
+    const frame = ['page-frame', 'py-24', 'md:py-32'];
+    const black = [...frame, 'bg-field-black', 'text-field-black-ink'];
+    const chapters = wrapper
+      .findAll('section[data-chapter]')
+      .map((section) => ({
+        heading: section.find('h1, h2').text(),
+        bg: section.attributes('data-bg'),
+        ink: section.attributes('data-ink'),
+        classes: section.classes(),
+      }));
+    expect(chapters.map(({ classes: _classes, ...rest }) => rest)).toEqual([
+      { heading: 'Pikachu', bg: '#f7d02c', ink: expect.any(String) },
+      { heading: 'Base stats', bg: '#1a1a1a', ink: '#e6e0d2' },
+      { heading: 'Size', bg: '#e6e0d2', ink: '#1a1a1a' },
+      { heading: 'Pokédex data', bg: '#dcd5c5', ink: '#1a1a1a' },
+      { heading: 'Moves by level', bg: '#1a1a1a', ink: '#e6e0d2' },
+      { heading: 'Evolutions', bg: '#f2c21a', ink: '#1a1a1a' },
+      { heading: 'Weaknesses', bg: '#dcd5c5', ink: '#1a1a1a' },
+      { heading: 'Match-ups', bg: '#ed4b44', ink: '#1a1a1a' },
+      { heading: 'Next up', bg: '#1a1a1a', ink: '#e6e0d2' },
+    ]);
+    const expectedClasses = [
+      ['detail-hero', 'page-frame'],
+      black,
+      frame,
+      [...frame, 'bg-surface'],
+      black,
+      [...frame, 'bg-yellow'],
+      [...frame, 'bg-surface'],
+      [...frame, 'bg-coral'],
+      black,
+    ];
+    chapters.forEach((chapter, index) => {
+      expect([...chapter.classes].sort()).toEqual(
+        [...(expectedClasses[index] ?? [])].sort()
+      );
+    });
+  });
+
   it('raises a 404 for an unknown Pokémon', async () => {
     fetchMock.mockRejectedValue(
       Object.assign(new Error('Not Found'), { statusCode: 404 })

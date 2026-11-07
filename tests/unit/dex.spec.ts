@@ -8,6 +8,7 @@ import {
   foldSearchText,
   getNextOffset,
   parseDexEntries,
+  pokemonLabel,
 } from '~/utils/dex';
 
 const entries = [
@@ -95,6 +96,22 @@ describe('displayNameFor', () => {
   it('is undefined before the snapshot loads or for an unknown id', () => {
     expect(displayNameFor(undefined, 1)).toBeUndefined();
     expect(displayNameFor(index, 2)).toBeUndefined();
+  });
+});
+
+describe('pokemonLabel', () => {
+  const index = { pokemon: [{ id: 1, displayName: 'Bulbasaur' }] };
+
+  it('prefers the snapshot display name', () => {
+    expect(pokemonLabel(index, 1, 'bulbasaur')).toBe('Bulbasaur');
+  });
+
+  it('formats the slug before the snapshot loads', () => {
+    expect(pokemonLabel(undefined, 122, 'mr-mime')).toBe('mr mime');
+  });
+
+  it('formats the slug when the id is missing from the snapshot', () => {
+    expect(pokemonLabel(index, 2, 'ivysaur-x')).toBe('ivysaur x');
   });
 });
 

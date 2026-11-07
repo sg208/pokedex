@@ -70,12 +70,7 @@ const handleType = (name: string): void => {
           type="button"
           :aria-pressed="type === name"
           class="type-chip"
-          :style="{
-            backgroundColor:
-              type === name ? getTypeStyle(name).ink : getTypeStyle(name).bg,
-            color:
-              type === name ? getTypeStyle(name).bg : getTypeStyle(name).ink,
-          }"
+          :style="typeChipStyle(name, type === name)"
           @click="handleType(name)"
         >
           {{ name }}
