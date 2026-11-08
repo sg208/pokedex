@@ -73,9 +73,13 @@ const buttonClass =
       class="grid grid-cols-2 gap-0.5 md:grid-cols-3 xl:grid-cols-4"
       aria-busy="true"
     >
-      <p class="sr-only">Loading Pokémon…</p>
       <div v-for="i in 8" :key="i" class="aspect-square bg-surface" />
     </div>
+
+    <!-- Stays mounted so screen readers announce the text when it changes. -->
+    <p role="status" class="sr-only">
+      {{ isFetching ? 'Loading Pokémon…' : '' }}
+    </p>
 
     <div class="flex justify-center py-12">
       <button
