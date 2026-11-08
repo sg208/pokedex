@@ -9,7 +9,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const isShiny = ref(false);
-const failed = ref<string[]>([]);
+const failedSources = ref<string[]>([]);
 
 const hasShiny = computed(() => props.shinySrc !== props.defaultSrc);
 // First candidate that has not failed to load
@@ -19,7 +19,7 @@ const src = computed(
       ...(isShiny.value ? [props.shinySrc] : []),
       props.defaultSrc,
       props.fallbackSrc,
-    ].find((candidate) => !failed.value.includes(candidate)) ??
+    ].find((candidate) => !failedSources.value.includes(candidate)) ??
     props.fallbackSrc
 );
 const alt = computed(() =>
@@ -32,7 +32,7 @@ const handleToggle = (): void => {
   isShiny.value = !isShiny.value;
 };
 const handleError = (): void => {
-  failed.value = [...failed.value, src.value];
+  failedSources.value = [...failedSources.value, src.value];
 };
 </script>
 

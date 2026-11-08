@@ -29,7 +29,7 @@ const tilt = computed(() => (props.index % 2 === 0 ? 4 : -5));
       <span class="card-number tabular">{{ formatDexNumber(id) }}</span>
       <img
         :src="artworkUrl(id)"
-        :alt="shownName"
+        alt=""
         width="475"
         height="475"
         loading="lazy"

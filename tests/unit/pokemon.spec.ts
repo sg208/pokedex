@@ -12,7 +12,6 @@ import {
   nameFitLength,
   parseIdFromUrl,
   pickGenus,
-  pickFlavorText,
   statLabel,
   statPercent,
 } from '~/utils/pokemon';
@@ -85,18 +84,12 @@ describe('pokemon helpers', () => {
     expect(cleanFlavorText('plain tablets')).toBe('plain tablets');
   });
 
-  it('picks English flavor text and genus', () => {
-    const flavors = [
-      { flavor_text: 'ほげ', language: { name: 'ja' } },
-      { flavor_text: 'Electric\fmouse.', language: { name: 'en' } },
-    ];
+  it('picks the English genus', () => {
     const genera = [
       { genus: 'ねずみ', language: { name: 'ja' } },
       { genus: 'Mouse Pokémon', language: { name: 'en' } },
     ];
-    expect(pickFlavorText(flavors)).toBe('Electric mouse.');
     expect(pickGenus(genera)).toBe('Mouse Pokémon');
-    expect(pickFlavorText([])).toBe('');
     expect(pickGenus([])).toBe('');
   });
 });
@@ -129,6 +122,15 @@ describe('buildDetailHead', () => {
     expect(byKey['og:type']).toBe('website');
     expect(byKey['og:site_name']).toBe('Pokédex');
     expect(byKey['twitter:card']).toBe('summary_large_image');
+  });
+
+  it('prefers a display name for the title and description', () => {
+    const head = buildDetailHead('mr-mime', 122, 'Mr. Mime');
+    expect(head.title).toBe('Mr. Mime #0122 - Pokédex');
+    expect(head.meta).toContainEqual({
+      property: 'og:url',
+      content: 'https://pokedex.engg.app/pokemon/mr-mime',
+    });
   });
 });
 

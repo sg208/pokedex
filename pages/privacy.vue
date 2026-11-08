@@ -41,7 +41,8 @@ useHead({
 
     <h2>Tracking</h2>
     <p>
-      There is no tracking: no visitor counting, no advertising and no fingerprinting.
+      There is no tracking: no visitor counting, no advertising and no
+      fingerprinting.
     </p>
 
     <h2>Questions</h2>

@@ -92,4 +92,10 @@ describe('DexDataPanel', () => {
     });
     expect(rows(wrapper)['Egg groups']).toBe('monster, dragon, field');
   });
+
+  it('announces loading while the species has not arrived', async () => {
+    const wrapper = await mountSuspended(DexDataPanel, { props: { stats } });
+    const placeholder = wrapper.find('[aria-busy="true"]');
+    expect(placeholder.find('.sr-only').text()).toBe('Loading…');
+  });
 });

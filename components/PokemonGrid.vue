@@ -76,6 +76,11 @@ const buttonClass =
       <div v-for="i in 8" :key="i" class="aspect-square bg-surface" />
     </div>
 
+    <!-- Stays mounted so screen readers announce the text when it changes. -->
+    <p role="status" class="sr-only">
+      {{ isFetching ? 'Loading Pokémon…' : '' }}
+    </p>
+
     <div class="flex justify-center py-12">
       <button
         v-if="hasMore && !isError"

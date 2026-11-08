@@ -47,10 +47,7 @@ const { prefetchOn } = usePokemonPrefetch();
                 v-for="type in matchup.pokemon.types"
                 :key="type"
                 class="matchup-type"
-                :style="{
-                  backgroundColor: getTypeStyle(type).bg,
-                  color: getTypeStyle(type).ink,
-                }"
+                :style="typeChipStyle(type)"
               >
                 {{ type }}
               </span>

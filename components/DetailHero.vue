@@ -42,10 +42,7 @@ const genus = computed(() => pickGenus(props.species?.genera ?? []));
             v-for="entry in data.types"
             :key="entry.type.name"
             class="type-block"
-            :style="{
-              backgroundColor: getTypeStyle(entry.type.name).ink,
-              color: getTypeStyle(entry.type.name).bg,
-            }"
+            :style="typeChipStyle(entry.type.name, true)"
           >
             {{ entry.type.name }}
           </li>

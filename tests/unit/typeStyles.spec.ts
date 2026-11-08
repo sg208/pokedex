@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { TYPE_NAMES, getTypeStyle } from '~/utils/typeStyles';
+import { TYPE_NAMES, getTypeStyle, typeChipStyle } from '~/utils/typeStyles';
 
 const luminance = (hex: string): number => {
   const value = parseInt(hex.slice(1), 16);
@@ -45,6 +45,23 @@ describe('type styles', () => {
   it('falls back to a neutral pair for unknown types', () => {
     const style = getTypeStyle('shadow');
     expect(contrast(style.bg, style.ink)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('builds a chip style from the type pair, swapped when inverted', () => {
+    expect(typeChipStyle('fire')).toEqual({
+      backgroundColor: '#ee8130',
+      color: '#1a1a1a',
+    });
+    expect(typeChipStyle('fire', true)).toEqual({
+      backgroundColor: '#1a1a1a',
+      color: '#ee8130',
+    });
+  });
+
+  it('uses the neutral pair for unknown or missing chip types', () => {
+    const neutral = { backgroundColor: '#dcd5c5', color: '#1a1a1a' };
+    expect(typeChipStyle('shadow')).toEqual(neutral);
+    expect(typeChipStyle()).toEqual(neutral);
   });
 
   it('keeps hero token pairs readable', () => {

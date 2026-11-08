@@ -1,7 +1,8 @@
 import { type QueryObserverResult, useQueries } from '@tanstack/vue-query';
 import { computed } from 'vue';
 import type { ComputedRef } from 'vue';
-import { fetchType, pokemonKeys } from '~/composables/queries/pokemonQueries';
+import { fetchType } from '~/composables/queries/pokemonFetchers';
+import { pokemonKeys } from '~/composables/queries/pokemonQueries';
 import type { TypeResponse } from '~/types/pokemon';
 import { buildPrimaryTypeIndex, buildTypeMembers } from '~/utils/dex';
 import { TYPE_NAMES } from '~/utils/typeStyles';

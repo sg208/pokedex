@@ -56,3 +56,16 @@ export const NEUTRAL_STYLE: TypeStyle = { bg: '#dcd5c5', ink: DARK_INK };
 
 export const getTypeStyle = (name?: string): TypeStyle =>
   TYPE_STYLES[name as TypeName] ?? NEUTRAL_STYLE;
+
+// A type alias, not an interface: Vue's CSSProperties needs the implicit index signature
+export type TypeChipStyle = { backgroundColor: string; color: string };
+
+export const typeChipStyle = (
+  name?: string,
+  isInverted = false
+): TypeChipStyle => {
+  const { bg, ink } = getTypeStyle(name);
+  return isInverted
+    ? { backgroundColor: ink, color: bg }
+    : { backgroundColor: bg, color: ink };
+};

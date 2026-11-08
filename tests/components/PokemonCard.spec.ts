@@ -31,7 +31,7 @@ describe('PokemonCard', () => {
     expect(wrapper.text()).toContain('#0025');
     expect(wrapper.text()).toContain('pikachu');
     const img = wrapper.find('img');
-    expect(img.attributes('alt')).toBe('pikachu');
+    expect(img.attributes('alt')).toBe('');
     expect(img.attributes('src')).toContain('official-artwork/25.png');
     expect(img.attributes('loading')).toBe('lazy');
     expect(img.attributes('width')).toBeTruthy();
@@ -45,7 +45,7 @@ describe('PokemonCard', () => {
       displayName: 'Mr. Mime',
     });
     expect(named.text()).toContain('Mr. Mime');
-    expect(named.find('img').attributes('alt')).toBe('Mr. Mime');
+    expect(named.find('img').attributes('alt')).toBe('');
     expect(named.find('a').attributes('href')).toBe('/pokemon/mr-mime');
     const plain = await mountCard({ id: 122, name: 'mr-mime' });
     expect(plain.text()).toContain('mr mime');

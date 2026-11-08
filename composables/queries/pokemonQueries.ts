@@ -15,41 +15,28 @@ import type {
   PokemonDetail,
   PokemonListResponse,
   PokemonSpecies,
-  TypeResponse,
 } from '~/types/pokemon';
+import {
+  fetchAbility,
+  fetchChain,
+  fetchDexIndex,
+  fetchDexNames,
+  fetchPokemon,
+  fetchPokemonPage,
+  fetchSpecies,
+} from '~/composables/queries/pokemonFetchers';
 import { getNextOffset, PAGE_SIZE } from '~/utils/dex';
-import { DEX_MAX, getErrorStatus, parseIdFromUrl } from '~/utils/pokemon';
-import { isPokemonSlug } from '~/utils/pokemonSlug';
+import { getErrorStatus, parseIdFromUrl } from '~/utils/pokemon';
 
-interface DetailQueryOptions {
-  queryKey: ReturnType<typeof pokemonKeys.detail>;
-  queryFn: () => Promise<PokemonDetail>;
+interface KeyedQuery<TKey extends readonly unknown[], TData> {
+  queryKey: TKey;
+  queryFn: () => Promise<TData>;
 }
 
-interface DexIndexQueryOptions {
-  queryKey: ReturnType<typeof pokemonKeys.dexIndex>;
-  queryFn: () => Promise<DexIndex>;
-  staleTime: number;
-}
-
-interface SpeciesQueryOptions {
-  queryKey: ReturnType<typeof pokemonKeys.species>;
-  queryFn: () => Promise<PokemonSpecies>;
-}
-
-interface ChainQueryOptions {
-  queryKey: ReturnType<typeof pokemonKeys.chain>;
-  queryFn: () => Promise<EvolutionChainResponse>;
-}
-
-interface AbilityQueryOptions {
-  queryKey: ReturnType<typeof pokemonKeys.ability>;
-  queryFn: () => Promise<AbilityResponse>;
-}
-
-interface DexNamesQueryOptions {
-  queryKey: ReturnType<typeof pokemonKeys.names>;
-  queryFn: () => Promise<PokemonListResponse>;
+interface StaticQuery<
+  TKey extends readonly unknown[],
+  TData,
+> extends KeyedQuery<TKey, TData> {
   staleTime: number;
 }
 
@@ -58,20 +45,6 @@ interface PokemonDetailQueries {
   species: UseQueryReturnType<PokemonSpecies, Error>;
   chain: UseQueryReturnType<EvolutionChainResponse, Error>;
 }
-
-const API = 'https://pokeapi.co/api/v2';
-
-export const REQUEST_TIMEOUT_MS = 10_000;
-
-// A name that is not a slug can never exist; fail like a PokeAPI 404 so the
-// page shows its not-found state without sending the request
-const assertSlug = (value: string, what: string): void => {
-  if (!isPokemonSlug(value)) {
-    throw Object.assign(new Error(`Unknown ${what}: ${value}`), {
-      statusCode: 404,
-    });
-  }
-};
 
 export const pokemonKeys = {
   all: ['pokemon'] as const,
@@ -88,106 +61,11 @@ export const pokemonKeys = {
   dexIndex: () => [...pokemonKeys.all, 'dex-index'] as const,
 };
 
-const assertShape = (isValid: boolean, what: string): void => {
-  if (!isValid) throw new Error(`Unexpected PokeAPI response for ${what}`);
-};
-
-export const fetchPokemonPage = async (
-  param: PageParam
-): Promise<PokemonListResponse> => {
-  const data = await $fetch<PokemonListResponse>(`${API}/pokemon`, {
-    query: { offset: param.offset, limit: param.limit },
-    timeout: REQUEST_TIMEOUT_MS,
-  });
-  assertShape(Array.isArray(data?.results), 'pokemon list');
-  return data;
-};
-
-export const fetchDexNames = (): Promise<PokemonListResponse> =>
-  fetchPokemonPage({ offset: 0, limit: DEX_MAX });
-
-export const fetchType = async (name: string): Promise<TypeResponse> => {
-  assertSlug(name, 'type');
-  const data = await $fetch<TypeResponse>(
-    `${API}/type/${encodeURIComponent(name)}`,
-    { timeout: REQUEST_TIMEOUT_MS }
-  );
-  assertShape(Array.isArray(data?.pokemon), `type ${name}`);
-  return data;
-};
-
-export const fetchPokemon = async (name: string): Promise<PokemonDetail> => {
-  assertSlug(name, 'pokemon');
-  const data = await $fetch<PokemonDetail>(
-    `${API}/pokemon/${encodeURIComponent(name)}`,
-    { timeout: REQUEST_TIMEOUT_MS }
-  );
-  assertShape(
-    typeof data?.id === 'number' &&
-      Array.isArray(data.types) &&
-      Array.isArray(data.stats),
-    `pokemon ${name}`
-  );
-  return data;
-};
-
-export const fetchSpecies = async (
-  idOrName: string | number
-): Promise<PokemonSpecies> => {
-  if (typeof idOrName === 'string') assertSlug(idOrName, 'species');
-  const data = await $fetch<PokemonSpecies>(
-    `${API}/pokemon-species/${encodeURIComponent(idOrName)}`,
-    { timeout: REQUEST_TIMEOUT_MS }
-  );
-  assertShape(
-    Array.isArray(data?.flavor_text_entries) && !!data.evolution_chain?.url,
-    `species ${idOrName}`
-  );
-  return data;
-};
-
-export const fetchAbility = async (name: string): Promise<AbilityResponse> => {
-  assertSlug(name, 'ability');
-  const data = await $fetch<AbilityResponse>(
-    `${API}/ability/${encodeURIComponent(name)}`,
-    { timeout: REQUEST_TIMEOUT_MS }
-  );
-  assertShape(Array.isArray(data?.effect_entries), `ability ${name}`);
-  return data;
-};
-
-export const fetchChain = async (
-  id: number
-): Promise<EvolutionChainResponse> => {
-  const data = await $fetch<EvolutionChainResponse>(
-    `${API}/evolution-chain/${id}`,
-    { timeout: REQUEST_TIMEOUT_MS }
-  );
-  assertShape(Array.isArray(data?.chain?.evolves_to), `evolution chain ${id}`);
-  return data;
-};
-
-// Same-origin static snapshot from scripts/build-dex-index.ts
-export const DEX_INDEX_URL = '/data/dex-index.json';
-
-export const fetchDexIndex = async (): Promise<DexIndex> => {
-  const data = await $fetch<DexIndex>(DEX_INDEX_URL, {
-    timeout: REQUEST_TIMEOUT_MS,
-  });
-  assertShape(
-    Array.isArray(data?.pokemon) &&
-      data.pokemon.length === DEX_MAX &&
-      Array.isArray(data.forms) &&
-      Array.isArray(data.chart) &&
-      data.chart.length === data.types?.length &&
-      typeof data.moves === 'object',
-    'dex index'
-  );
-  return data;
-};
-
 // The snapshot only changes on deploy, so it never goes stale in a session
-export const dexIndexQueryOptions = (): DexIndexQueryOptions => ({
+export const dexIndexQueryOptions = (): StaticQuery<
+  ReturnType<typeof pokemonKeys.dexIndex>,
+  DexIndex
+> => ({
   queryKey: pokemonKeys.dexIndex(),
   queryFn: fetchDexIndex,
   staleTime: Infinity,
@@ -198,22 +76,31 @@ export const useDexIndex = (): UseQueryReturnType<DexIndex, Error> =>
 
 export const pokemonDetailQueryOptions = (
   name: string
-): DetailQueryOptions => ({
+): KeyedQuery<ReturnType<typeof pokemonKeys.detail>, PokemonDetail> => ({
   queryKey: pokemonKeys.detail(name),
   queryFn: (): Promise<PokemonDetail> => fetchPokemon(name),
 });
 
-export const speciesQueryOptions = (id: number): SpeciesQueryOptions => ({
+export const speciesQueryOptions = (
+  id: number
+): KeyedQuery<ReturnType<typeof pokemonKeys.species>, PokemonSpecies> => ({
   queryKey: pokemonKeys.species(id),
   queryFn: (): Promise<PokemonSpecies> => fetchSpecies(id),
 });
 
-export const abilityQueryOptions = (name: string): AbilityQueryOptions => ({
+export const abilityQueryOptions = (
+  name: string
+): KeyedQuery<ReturnType<typeof pokemonKeys.ability>, AbilityResponse> => ({
   queryKey: pokemonKeys.ability(name),
   queryFn: (): Promise<AbilityResponse> => fetchAbility(name),
 });
 
-export const chainQueryOptions = (id: number): ChainQueryOptions => ({
+export const chainQueryOptions = (
+  id: number
+): KeyedQuery<
+  ReturnType<typeof pokemonKeys.chain>,
+  EvolutionChainResponse
+> => ({
   queryKey: pokemonKeys.chain(id),
   queryFn: (): Promise<EvolutionChainResponse> => fetchChain(id),
 });
@@ -241,7 +128,10 @@ export const prefetchPokemonDetail = async (
 };
 
 // The full name list is static for a session, so it never goes stale
-export const dexNamesQueryOptions = (): DexNamesQueryOptions => ({
+export const dexNamesQueryOptions = (): StaticQuery<
+  ReturnType<typeof pokemonKeys.names>,
+  PokemonListResponse
+> => ({
   queryKey: pokemonKeys.names(),
   queryFn: fetchDexNames,
   staleTime: Infinity,

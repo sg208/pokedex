@@ -1,6 +1,7 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { describe, expect, it } from 'vitest';
 import WeaknessGrid from '~/components/WeaknessGrid.vue';
+import { getTypeStyle } from '~/utils/typeStyles';
 import dexIndex from '~/public/data/dex-index.json';
 
 const bucketText = (
@@ -52,5 +53,18 @@ describe('WeaknessGrid', () => {
     const buckets = bucketText(wrapper);
     expect(buckets['×2']).toHaveLength(5);
     expect(buckets['×0']).toHaveLength(13);
+  });
+
+  it('colours each chip with its type pair', async () => {
+    const wrapper = await mountSuspended(WeaknessGrid, {
+      props: { types: ['electric'], abilities: ['static'], index: dexIndex },
+    });
+    const chip = wrapper.find('ul[aria-label] ul li');
+    const expected = document.createElement('li');
+    const style = getTypeStyle('ground');
+    expected.style.backgroundColor = style.bg;
+    expected.style.color = style.ink;
+    expect(chip.text()).toBe('ground');
+    expect(chip.attributes('style')).toBe(expected.getAttribute('style'));
   });
 });

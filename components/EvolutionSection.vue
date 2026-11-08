@@ -17,13 +17,7 @@ const tree = computed(() =>
 </script>
 
 <template>
-  <section
-    class="page-frame bg-yellow py-24 md:py-32"
-    data-chapter
-    data-bg="#f2c21a"
-    data-ink="#1a1a1a"
-  >
-    <h2 v-reveal class="display section-title">Evolutions</h2>
+  <DetailSection title="Evolutions" tone="yellow">
     <div v-reveal="1" class="mt-10">
       <EvolutionTree
         v-if="tree"
@@ -41,11 +35,5 @@ const tree = computed(() =>
       class="mt-16"
       :forms="battleForms"
     />
-  </section>
+  </DetailSection>
 </template>
-
-<style scoped>
-.section-title {
-  font-size: clamp(2rem, 8vw, 7rem);
-}
-</style>

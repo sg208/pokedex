@@ -26,7 +26,7 @@ Requirements:
 
 ## Missing pages
 
-The home page and legal pages are fully prerendered. Each `/pokemon/<name>` is prerendered as an empty client-rendered shell (`ssr: false`), so detail pages have no server-rendered content and no per-Pokémon OG tags.
+The home page and legal pages are fully prerendered. Each `/pokemon/<name>` is prerendered as an empty client-rendered shell (`ssr: false`) that fetches its data in the browser. Each shell still gets its own title, description and Open Graph tags at build time, from the one names request (`modules/dex-routes.ts`).
 
 Unknown paths get the real `404.html` (`not_found_handling: "404-page"`). A single-page fallback was rejected because Cloudflare would then serve `/index.html` with a 200 status for every path.
 

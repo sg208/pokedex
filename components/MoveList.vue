@@ -41,20 +41,18 @@ defineProps<Props>();
           <th scope="row" class="move-name">
             <span class="display">{{ formatName(move.name) }}</span>
             <span class="move-meta text-small">
-              <span
-                class="move-type"
-                :style="{
-                  backgroundColor: getTypeStyle(move.type).bg,
-                  color: getTypeStyle(move.type).ink,
-                }"
-              >
+              <span class="move-type" :style="typeChipStyle(move.type)">
                 {{ move.type }}
               </span>
               <span class="move-class">{{ move.damageClass }}</span>
             </span>
           </th>
           <td class="move-power">
-            <span class="tabular font-bold">{{ move.power ?? '—' }}</span>
+            <span v-if="move.power === null" class="tabular font-bold">
+              <span aria-hidden="true">—</span
+              ><span class="sr-only">No power</span>
+            </span>
+            <span v-else class="tabular font-bold">{{ move.power }}</span>
             <span class="power-track" aria-hidden="true">
               <span
                 class="power-fill"
