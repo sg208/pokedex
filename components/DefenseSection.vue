@@ -37,6 +37,8 @@ const regularAbilities = computed(() =>
     <p v-else-if="isError" role="alert" class="mt-10">
       Type chart data did not arrive.
     </p>
-    <div v-else class="mt-10 h-64 w-full bg-ground" aria-busy="true" />
+    <div v-else class="mt-10 h-64 w-full bg-ground" aria-busy="true">
+      <span class="sr-only">Loading…</span>
+    </div>
   </DetailSection>
 </template>

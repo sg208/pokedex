@@ -52,7 +52,9 @@ const rows = computed(() => {
       </div>
     </dl>
   </div>
-  <div v-else class="h-64 w-full bg-ground" aria-busy="true" />
+  <div v-else class="h-64 w-full bg-ground" aria-busy="true">
+    <span class="sr-only">Loading…</span>
+  </div>
 </template>
 
 <style scoped>

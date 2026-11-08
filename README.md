@@ -3,9 +3,9 @@
 A bold Pokédex for all 1,025 National Dex Pokémon, live at https://pokedex.engg.app.
 
 - Browse with infinite scroll
-- Search by name
-- Filter by type
-- Open a detail page with stats, abilities, flavour text and the evolution chain
+- Search by name or number
+- Filter by type, generation and rarity; sort by any stat
+- Open a detail page with stats, abilities, flavour text, moves, weaknesses, match-ups, battle forms and the evolution chain
 
 ## Stack
 
@@ -40,7 +40,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for how deploys work.
 - `utils/` shared helpers
 - `modules/dex-routes.ts` lists the Pokémon routes to prerender
 - `plugins/` Nuxt plugins
-- `tests/` unit tests
+- `tests/` unit, component and Playwright e2e tests
 
 ## Data and credits
 

@@ -51,9 +51,13 @@ watch(
 
 useHead((): DetailHead =>
   data.value
-    ? buildDetailHead(data.value.name, data.value.id)
+    ? buildDetailHead(data.value.name, data.value.id, displayName.value)
     : { title: 'Pokédex', meta: [] }
 );
+
+const handleRetry = (): void => {
+  void pokemon.refetch();
+};
 </script>
 
 <template>
@@ -70,7 +74,7 @@ useHead((): DetailHead =>
       <button
         type="button"
         class="min-h-12 bg-ink px-6 font-bold text-ground"
-        @click="pokemon.refetch()"
+        @click="handleRetry"
       >
         Try again
       </button>
@@ -128,7 +132,9 @@ useHead((): DetailHead =>
           <p v-else-if="dexIndex.isError.value" role="alert">
             Move details did not arrive.
           </p>
-          <div v-else class="h-64 w-full bg-[#262626]" aria-busy="true" />
+          <div v-else class="h-64 w-full bg-[#262626]" aria-busy="true">
+            <span class="sr-only">Loading moves…</span>
+          </div>
         </div>
       </DetailSection>
 

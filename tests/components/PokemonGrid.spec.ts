@@ -80,6 +80,12 @@ describe('PokemonGrid', () => {
     expect(wrapper.emitted('loadMore')).toBeUndefined();
   });
 
+  it('announces loading while the first page is fetching', async () => {
+    const wrapper = await mountGrid({ items: [], isFetching: true });
+    const busy = wrapper.find('[aria-busy="true"]');
+    expect(busy.find('.sr-only').text()).toBe('Loading Pokémon…');
+  });
+
   it('shows an empty state when nothing matches', async () => {
     const wrapper = await mountGrid({ items: [], hasMore: false });
     expect(wrapper.text()).toContain('No Pokémon match');

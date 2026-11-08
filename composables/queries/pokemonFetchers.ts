@@ -11,7 +11,7 @@ import type {
 import { DEX_MAX } from '~/utils/pokemon';
 import { isPokemonSlug } from '~/utils/pokemonSlug';
 
-const API = 'https://pokeapi.co/api/v2';
+const API_BASE_URL = 'https://pokeapi.co/api/v2';
 
 const REQUEST_TIMEOUT_MS = 10_000;
 
@@ -38,9 +38,12 @@ const assertShape = (isValid: boolean, what: string): void => {
 export const fetchPokemonPage = async (
   param: PageParam
 ): Promise<PokemonListResponse> => {
-  const data = await requestJson<PokemonListResponse>(`${API}/pokemon`, {
-    query: { offset: param.offset, limit: param.limit },
-  });
+  const data = await requestJson<PokemonListResponse>(
+    `${API_BASE_URL}/pokemon`,
+    {
+      query: { offset: param.offset, limit: param.limit },
+    }
+  );
   assertShape(Array.isArray(data?.results), 'pokemon list');
   return data;
 };
@@ -51,7 +54,7 @@ export const fetchDexNames = (): Promise<PokemonListResponse> =>
 export const fetchType = async (name: string): Promise<TypeResponse> => {
   assertSlug(name, 'type');
   const data = await requestJson<TypeResponse>(
-    `${API}/type/${encodeURIComponent(name)}`
+    `${API_BASE_URL}/type/${encodeURIComponent(name)}`
   );
   assertShape(Array.isArray(data?.pokemon), `type ${name}`);
   return data;
@@ -60,7 +63,7 @@ export const fetchType = async (name: string): Promise<TypeResponse> => {
 export const fetchPokemon = async (name: string): Promise<PokemonDetail> => {
   assertSlug(name, 'pokemon');
   const data = await requestJson<PokemonDetail>(
-    `${API}/pokemon/${encodeURIComponent(name)}`
+    `${API_BASE_URL}/pokemon/${encodeURIComponent(name)}`
   );
   assertShape(
     typeof data?.id === 'number' &&
@@ -76,7 +79,7 @@ export const fetchSpecies = async (
 ): Promise<PokemonSpecies> => {
   if (typeof idOrName === 'string') assertSlug(idOrName, 'species');
   const data = await requestJson<PokemonSpecies>(
-    `${API}/pokemon-species/${encodeURIComponent(idOrName)}`
+    `${API_BASE_URL}/pokemon-species/${encodeURIComponent(idOrName)}`
   );
   assertShape(
     Array.isArray(data?.flavor_text_entries) && !!data.evolution_chain?.url,
@@ -88,7 +91,7 @@ export const fetchSpecies = async (
 export const fetchAbility = async (name: string): Promise<AbilityResponse> => {
   assertSlug(name, 'ability');
   const data = await requestJson<AbilityResponse>(
-    `${API}/ability/${encodeURIComponent(name)}`
+    `${API_BASE_URL}/ability/${encodeURIComponent(name)}`
   );
   assertShape(Array.isArray(data?.effect_entries), `ability ${name}`);
   return data;
@@ -98,7 +101,7 @@ export const fetchChain = async (
   id: number
 ): Promise<EvolutionChainResponse> => {
   const data = await requestJson<EvolutionChainResponse>(
-    `${API}/evolution-chain/${id}`
+    `${API_BASE_URL}/evolution-chain/${id}`
   );
   assertShape(Array.isArray(data?.chain?.evolves_to), `evolution chain ${id}`);
   return data;

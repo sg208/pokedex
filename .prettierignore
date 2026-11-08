@@ -1,2 +1,6 @@
 # Generated snapshot, kept minified (pnpm data:refresh)
 public/data/
+
+# Agent bookkeeping, not source
+.done/
+.backlog/

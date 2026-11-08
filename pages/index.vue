@@ -4,14 +4,21 @@ import { useDexFilter } from '~/composables/useDexFilter';
 import { useTypeIndex } from '~/composables/queries/useTypeIndex';
 import { parseDexEntries } from '~/utils/dex';
 
+const HOME_TITLE = 'Pokédex - every Pokémon, with stats, types and evolutions';
+const HOME_DESCRIPTION =
+  'Every one of the 1,025 Pokémon in the National Pokédex, with stats, types and evolutions. Data from PokeAPI.';
+
 useHead({
-  title: 'Pokédex - every Pokémon, with stats, types and evolutions',
+  title: HOME_TITLE,
   meta: [
-    {
-      name: 'description',
-      content:
-        'Every one of the 1,025 Pokémon in the National Pokédex, with stats, types and evolutions. Data from PokeAPI.',
-    },
+    { name: 'description', content: HOME_DESCRIPTION },
+    { property: 'og:title', content: HOME_TITLE },
+    { property: 'og:description', content: HOME_DESCRIPTION },
+    { property: 'og:image', content: artworkUrl(25) },
+    { property: 'og:url', content: `${DEX_SITE_URL}/` },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'Pokédex' },
+    { name: 'twitter:card', content: 'summary_large_image' },
   ],
 });
 

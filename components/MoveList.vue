@@ -48,7 +48,11 @@ defineProps<Props>();
             </span>
           </th>
           <td class="move-power">
-            <span class="tabular font-bold">{{ move.power ?? '—' }}</span>
+            <span v-if="move.power === null" class="tabular font-bold">
+              <span aria-hidden="true">—</span
+              ><span class="sr-only">No power</span>
+            </span>
+            <span v-else class="tabular font-bold">{{ move.power }}</span>
             <span class="power-track" aria-hidden="true">
               <span
                 class="power-fill"

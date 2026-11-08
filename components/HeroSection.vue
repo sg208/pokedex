@@ -20,12 +20,15 @@ const HERO_ID = 25;
       alt="Pikachu"
       width="475"
       height="475"
+      fetchpriority="high"
+      decoding="async"
       class="hero-art"
     />
 
     <div v-reveal="2" class="hero-bottom">
       <p class="hero-copy">
-        A Pokédex of all 1,025 Pokémon, with stats, types and evolutions from PokeAPI.
+        A Pokédex of all 1,025 Pokémon, with stats, types and evolutions from
+        PokeAPI.
       </p>
       <a href="#index" class="hero-button press">Browse all</a>
     </div>

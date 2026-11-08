@@ -123,6 +123,15 @@ describe('buildDetailHead', () => {
     expect(byKey['og:site_name']).toBe('Pokédex');
     expect(byKey['twitter:card']).toBe('summary_large_image');
   });
+
+  it('prefers a display name for the title and description', () => {
+    const head = buildDetailHead('mr-mime', 122, 'Mr. Mime');
+    expect(head.title).toBe('Mr. Mime #0122 - Pokédex');
+    expect(head.meta).toContainEqual({
+      property: 'og:url',
+      content: 'https://pokedex.engg.app/pokemon/mr-mime',
+    });
+  });
 });
 
 describe('injectHeadTags', () => {

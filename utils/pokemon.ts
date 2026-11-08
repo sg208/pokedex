@@ -108,8 +108,12 @@ export interface DetailHead {
 }
 
 // Per-Pokémon head: only the name and dex number are known without extra API calls
-export const buildDetailHead = (name: string, id: number): DetailHead => {
-  const display = toTitleCase(name);
+export const buildDetailHead = (
+  name: string,
+  id: number,
+  displayName?: string
+): DetailHead => {
+  const display = displayName ?? toTitleCase(name);
   const title = `${display} ${formatDexNumber(id)} - Pokédex`;
   const description = `${display}, Pokédex ${formatDexNumber(id)}.`;
   return {
